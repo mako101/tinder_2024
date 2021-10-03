@@ -3,6 +3,7 @@ from typing import Tuple
 
 from tinder.entities.match import Match
 from tinder.entities.message import Message
+from tinder.entities.recommendation import Recommendation
 from tinder.entities.self_user import SelfUser
 from tinder.http import Http
 from tinder.entities.user import User
@@ -14,13 +15,14 @@ class Tinder:
         logging.getLogger().name = "tinder-py"
         logging.getLogger().setLevel(logging.DEBUG)
 
-    def retrieve_recommendations(self) -> Tuple[User, ...]:
-        route = "/user/recs"
+    def retrieve_recommendations(self) -> Tuple[Recommendation, ...]:
+        route = "v2/recs/core"
         response = self._http.get(route).json()
-        users = set()
-        for result in response["results"]:
-            users.add(User(self._http, result))
-        return tuple(users)
+        recs = set()
+        for result in response["data"]["results"]:
+            print(result)
+            recs.add(Recommendation(self._http, result))
+        return tuple(recs)
 
     def retrieve_matches(self, count: int = 60, page_token: str = None) -> Tuple[Match, ...]:
         route = "/v2/matches?count={}".format(count)
