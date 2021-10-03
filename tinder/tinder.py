@@ -9,7 +9,7 @@ from tinder.http import Http
 from tinder.entities.user import User
 
 
-class Tinder:
+class TinderClient:
     def __init__(self, auth_token: str):
         self._http = Http(auth_token)
         logging.getLogger().name = "tinder-py"
