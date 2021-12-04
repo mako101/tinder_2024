@@ -1,42 +1,87 @@
-from tinder.entities import user, match
+from datetime import datetime
+from enum import Enum
+
 from tinder.entities.entity import Entity
-from tinder.http import Http
 
 
 class Message(Entity):
-    __slots__ = ["_match_id",
-                 "content",
-                 "receiver_id",
-                 "_author_id",
-                 "sent_date",
-                 "timestamp",
-                 "created_date"]
+    __slots__ = [
+        'match_id',
+        'sent_date',
+        'content',
+        'author_id',
+        'recipient_id',
+        'attachment_type',
+        'attachment'
+    ]
 
-    def __init__(self, http: Http, message: dict):
-        super().__init__(http, message["_id"])
-        self._match_id = message["match_id"]
-        self.content = message["message"]
-        self.receiver_id = message["to"]
-        self._author_id = message["from"]
-        if "sent_date" in message:
-            self.sent_date = message["sent_date"]
-        else:
-            self.sent_date = "N/A"
-        if "timestamp" in message:
-            self.timestamp = message["timestamp"]
-        else:
-            self.timestamp = "N/A"
-        if "created_date" in message:
-            self.created_date = message["created_date"]
-        else:
-            self.created_date = "N/A"
+    def __init__(self, message: dict):
+        super().__init__(message)
+        self.match_id: str = message['match_id']
+        self.sent_date: datetime = datetime.fromtimestamp(message['timestamp'])
+        self.content: str = message['message']
+        # TODO add objects instead of ids
+        self.author_id: str = message['from']
+        self.recipient_id: str = message['to']
+        self.attachment_type: AttachmentType = AttachmentType.NONE
 
-    def retrieve_author(self):
-        route = "/user/" + self._author_id
-        response = self._http.get(route).json()
-        return user.User(self._http, response["results"])
+        if 'type' in message:
+            self.attachment_type = AttachmentType(message['type'])
 
-    def retrieve_match(self):
-        route = "/v2/matches/" + self._match_id
-        response = self._http.get(route).json()
-        return match.Match(self._http, response["data"])
+        if self.attachment_type == AttachmentType.GIF:
+            self.attachment = GIFAttachment(message)
+        elif self.attachment_type == AttachmentType.CONTACT_CARD:
+            self.attachment = ContactCardAttachment(message)
+        elif self.attachment_type == AttachmentType.SONG:
+            self.attachment = SongAttachment(message)
+        elif self.attachment_type == AttachmentType.STICKER:
+            self.attachment = StickerAttachment(message)
+
+
+class AttachmentType(Enum):
+    GIF = 'gif',
+    CONTACT_CARD = 'contact_card',
+    SONG = 'song'
+    STICKER = 'sticker'
+    NONE = 'N/A'
+
+
+class Attachment:
+    __slots__ = ['attachment_type']
+
+    def __init__(self, attachment_type: AttachmentType):
+        self.attachment_type: AttachmentType = attachment_type
+
+
+class GIFAttachment(Attachment):
+    __slots__ = ['url']
+
+    def __init__(self, message: dict):
+        super().__init__(AttachmentType.GIF)
+        self.url: str = message['fixed_height']
+
+
+class ContactCardAttachment(Attachment):
+    __slots__ = ['contact_id', 'contact_type', 'url']
+
+    def __init__(self, message: dict):
+        super().__init__(AttachmentType.CONTACT_CARD)
+        contact_card = message['contact_card']
+        self.contact_id: str = contact_card['contact_id']
+        self.contact_type: str = contact_card['contact_type']
+        self.url: str = contact_card['deeplink']
+
+
+# TODO implement as soon as the song model exists
+class SongAttachment(Attachment):
+    def __init__(self, message: dict):
+        super().__init__(AttachmentType.GIF)
+
+
+class StickerAttachment(Attachment):
+    __slots__ = ['url']
+
+    def __init__(self, message: dict):
+        super().__init__(AttachmentType.STICKER)
+        self.url: str = message['fixed_height']
+

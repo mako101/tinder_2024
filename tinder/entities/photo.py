@@ -1,4 +1,4 @@
-from typing import List
+from typing import Tuple
 
 from tinder.entities.entity import Entity
 
@@ -36,10 +36,8 @@ class CropInfo:
         if 'algo' in crop_info:
             self.algo: FacialScope = FacialScope(crop_info['algo'])
 
-        self.faces: List[Face] = []
         if 'faces' in crop_info:
-            for algo in crop_info['faces']:
-                self.faces.append(Face(algo))
+            self.faces: Tuple[Face] = tuple(Face(algo) for algo in crop_info['faces'])
 
     def has_faces(self) -> bool:
         return len(self.faces) > 0
@@ -76,11 +74,8 @@ class GenericPhoto(Entity):
         super().__init__(photo)
         self.crop_info: CropInfo = CropInfo(photo['crop_info'])
         self.url: str = photo['url']
-
-        self.processedFiles: List[SizedImage] = []
-        for image in photo['processedFiles']:
-            self.processedFiles.append(SizedImage(image))
-
+        self.processedFiles: Tuple[SizedImage] = \
+            tuple(SizedImage(i) for i in photo['processedFiles'])
         self.file_name: str = photo['fileName']
         self.extension: str = photo['extension']
 

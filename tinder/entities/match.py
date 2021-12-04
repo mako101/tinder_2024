@@ -2,10 +2,12 @@ from typing import Tuple
 
 from tinder.entities import entity, user, message
 from tinder.http import Http
+from tinder.http import Request
 
 
 class Match(entity.Entity):
     __slots__ = ["closed",
+                 "http",
                  "common_friend_count",
                  "common_like_count",
                  "created_date",
@@ -21,7 +23,8 @@ class Match(entity.Entity):
                  "_user_id"]
 
     def __init__(self, http: Http, match: dict):
-        super().__init__(http, match["_id"])
+        super().__init__(match)
+        self.http = http
         self.closed = match["closed"]
         self.common_friend_count = match["common_friend_count"]
         self.common_like_count = match["common_like_count"]
@@ -39,13 +42,14 @@ class Match(entity.Entity):
 
     def retrieve_user(self):
         route = "/user/" + self._user_id
-        response = self._http.get(route).json()
-        return user.User(self._http, response["results"])
+        response = self.http.make_request(Request(method='GET', route=route)).json()
+        return user.User(self.http, response["results"])
 
     def send_message(self, content: str) -> message.Message:
         route = "/user/matches/{}".format(self.entity_id)
-        response = self._http.post(route, {"message": content}).json()
-        return message.Message(self._http, response)
+        response = self.http.make_request(
+            Request(method='POST', route=route, body={"message": content})).json()
+        return message.Message(response)
 
     def retrieve_messages(self,
                           count: int = 60,
@@ -56,5 +60,5 @@ class Match(entity.Entity):
         response = self._http.get(route).json()
         messages = list()
         for msg in response["data"]["messages"]:
-            messages.append(message.Message(self._http, msg))
+            messages.append(message.Message(msg))
         return tuple(messages)

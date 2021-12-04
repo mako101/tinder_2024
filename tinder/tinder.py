@@ -6,6 +6,7 @@ from tinder.entities.message import Message
 from tinder.entities.recommendation import Recommendation
 from tinder.entities.self_user import SelfUser
 from tinder.http import Http
+from tinder.http import Request
 from tinder.entities.user import User
 
 
@@ -28,7 +29,7 @@ class TinderClient:
         route = "/v2/matches?count={}".format(count)
         if page_token:
             route = route + "&page_token=" + page_token
-        response = self._http.get(route).json()
+        response = self._http.make_request(Request(method='GET', route=route)).json()
         matches = set()
         for match in response["data"]["matches"]:
             matches.add(Match(self._http, match))

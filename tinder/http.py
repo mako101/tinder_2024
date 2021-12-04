@@ -49,9 +49,9 @@ class Http:
         if method == "GET":
             response = requests.get(url, headers=self._headers)
         elif method == "POST":
-            response = requests.post(url, headers=self._headers, body=request.body)
+            response = requests.post(url, headers=self._headers, json=request.body)
         elif method == "PUT":
-            response = requests.put(url, headers=self._headers, body=request.body)
+            response = requests.put(url, headers=self._headers, json=request.body)
         elif method == "DELETE":
             response = requests.delete(url, headers=self._headers)
         else:
