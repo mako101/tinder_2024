@@ -3,11 +3,10 @@ from typing import Tuple
 
 from tinder.entities.match import Match
 from tinder.entities.message import Message
-from tinder.entities.recommendation import Recommendation
 from tinder.entities.self_user import SelfUser
 from tinder.http import Http
 from tinder.http import Request
-from tinder.entities.user import User
+from tinder.entities.user import UserProfile, LikePreview
 
 
 class TinderClient:
@@ -16,13 +15,18 @@ class TinderClient:
         logging.getLogger().name = "tinder-py"
         logging.getLogger().setLevel(logging.DEBUG)
 
-    def retrieve_recommendations(self) -> Tuple[Recommendation, ...]:
+    def retrieve_like_previews(self) -> Tuple[LikePreview]:
+        response = \
+            self._http.make_request(Request(method='GET', route='/v2/fast-match/teasers')).json()
+        return tuple(LikePreview(user['user']) for user in response['data']['results'])
+
+    def retrieve_recommendations(self):
         route = "v2/recs/core"
         response = self._http.get(route).json()
         recs = set()
         for result in response["data"]["results"]:
             print(result)
-            recs.add(Recommendation(self._http, result))
+            # recs.add(Recommendation(self._http, result))
         return tuple(recs)
 
     def retrieve_matches(self, count: int = 60, page_token: str = None) -> Tuple[Match, ...]:
@@ -49,10 +53,10 @@ class TinderClient:
                 result.add(match)
         return tuple(result)
 
-    def retrieve_user(self, user_id: str) -> User:
+    def retrieve_user(self, user_id: str) -> UserProfile:
         route = "/user/{}".format(user_id)
         response = self._http.get(route).json()
-        return User(self._http, response["results"])
+        return UserProfile(response["results"])
 
     def retrieve_message(self, message_id) -> Message:
         route = "/message/{}".format(message_id)

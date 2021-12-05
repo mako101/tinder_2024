@@ -276,9 +276,19 @@ class UserProfile(SwipeableUser):
             self.is_travelling: bool = user['is_travelling']
 
 
-class LikePreview:
+class Recommendation(SwipeableUser):
+    __slots__ = ['group_matched', 'content_hash']
+
+    def __init__(self, user: dict):
+        super().__init__(user)
+        self.group_matched = user['group_matched']
+        self.content_hash = user['content_hash']
+
+
+class LikePreview(Entity):
     __slots__ = ['photos', 'recently_active']
 
     def __init__(self, user: dict):
+        super().__init__(user)
         self.photos: Tuple[UserPhoto] = tuple(UserPhoto(p) for p in user['photos'])
         self.recently_active: bool = user['recently_active']
