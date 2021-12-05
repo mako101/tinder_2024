@@ -1,5 +1,8 @@
 from typing import Tuple
 
+from tinder.entities.entity import Entity
+from tinder.entities.photo import SizedImage
+
 
 class InstagramInfo:
     __slots__ = ['last_fetch_time', 'completed_initial_fetch', 'media_count', 'photos']
@@ -39,3 +42,53 @@ class FacebookInfo:
         self.common_like_count = facebook['common_like_count']
         self.common_friends = facebook['common_friends']
         self.common_friend_count = facebook['common_friend_count']
+
+
+class SpotifyEntity(Entity):
+    __slots__ = ['name']
+
+    def __init__(self, entity: dict):
+        super().__init__(entity)
+        self.name: str = entity['name']
+
+
+class SpotifyAlbum(SpotifyEntity):
+    __slots__ = ['images']
+
+    def __init__(self, album: dict):
+        super().__init__(album)
+        self.images: Tuple[SizedImage] = tuple(SizedImage(i) for i in album['images'])
+
+
+class GenericSpotifyTrack(SpotifyEntity):
+    __slots__ = ['album', 'artists']
+
+    def __init__(self, track: dict):
+        super().__init__(track)
+        self.album: SpotifyAlbum = SpotifyAlbum(track['album'])
+        self.artists: Tuple[SpotifyEntity] = tuple(SpotifyEntity(a) for a in track['artists'])
+
+
+class SpotifyTrack(GenericSpotifyTrack):
+    __slots__ = ['url', 'uri']
+
+    def __init__(self, track: dict):
+        super().__init__(track)
+        self.url: str = track['preview_url']
+        self.url: str = track['uri']
+
+
+class SongAttachment(GenericSpotifyTrack):
+    __slots__ = ['url']
+
+    def __init__(self, track: dict):
+        super().__init__(track)
+        self.url: str = track['url']
+
+
+class SpotifyTopArtist(SpotifyEntity):
+
+    def __init__(self, artist: dict):
+        super().__init__(artist)
+        self.selected: bool = artist['selected']
+        self.top_track: SpotifyTrack = SpotifyTrack(artist['top_track'])

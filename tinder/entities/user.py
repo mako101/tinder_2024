@@ -291,4 +291,7 @@ class LikePreview(Entity):
     def __init__(self, user: dict):
         super().__init__(user)
         self.photos: Tuple[UserPhoto] = tuple(UserPhoto(p) for p in user['photos'])
-        self.recently_active: bool = user['recently_active']
+        self.recently_active: bool = False
+        if 'recently_active' in user:
+            self.recently_active: bool = user['recently_active']
+
