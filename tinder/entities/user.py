@@ -298,4 +298,3 @@ class LikePreview(Entity):
         self.recently_active: bool = False
         if 'recently_active' in user:
             self.recently_active: bool = user['recently_active']
-
