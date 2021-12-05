@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 from tinder.entities.entity import Entity
+from tinder.entities.socials import SpotifySongAttachment
 
 
 class Message(Entity):
@@ -47,10 +48,10 @@ class AttachmentType(Enum):
 
 
 class Attachment:
-    __slots__ = ['attachment_type']
+    __slots__ = ['type']
 
     def __init__(self, attachment_type: AttachmentType):
-        self.attachment_type: AttachmentType = attachment_type
+        self.type: AttachmentType = attachment_type
 
 
 class GIFAttachment(Attachment):
@@ -72,10 +73,12 @@ class ContactCardAttachment(Attachment):
         self.url: str = contact_card['deeplink']
 
 
-# TODO implement as soon as the song model exists
 class SongAttachment(Attachment):
+    __slots__ = ['song']
+
     def __init__(self, message: dict):
-        super().__init__(AttachmentType.GIF)
+        super().__init__(AttachmentType.SONG)
+        self.song: SpotifySongAttachment = SpotifySongAttachment(message['song'])
 
 
 class StickerAttachment(Attachment):
@@ -84,4 +87,3 @@ class StickerAttachment(Attachment):
     def __init__(self, message: dict):
         super().__init__(AttachmentType.STICKER)
         self.url: str = message['fixed_height']
-

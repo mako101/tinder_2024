@@ -78,7 +78,7 @@ class SpotifyTrack(GenericSpotifyTrack):
         self.url: str = track['uri']
 
 
-class SongAttachment(GenericSpotifyTrack):
+class SpotifySongAttachment(GenericSpotifyTrack):
     __slots__ = ['url']
 
     def __init__(self, track: dict):

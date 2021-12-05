@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Tuple
 
 from tinder.entities.entity import Entity
-from tinder.entities.socials import InstagramInfo, FacebookInfo
+from tinder.entities.socials import InstagramInfo, FacebookInfo, SpotifyTrack, SpotifyTopArtist
 from tinder.entities.photo import GenericPhoto, SizedImage, UserPhoto, MatchPhoto, ProfilePhoto
 
 
@@ -218,7 +218,11 @@ class SwipeableUser(GenericUser):
         self.show_gender_on_profile: bool = True
         if 'show_gender_on_profile' in user:
             self.show_gender_on_profile: bool = user['show_gender_on_profile']
-        # TODO Spotify bullshit
+        if 'spotify_top_artists' in user:
+            self.top_artists: Tuple[SpotifyTopArtist] = \
+                tuple(SpotifyTopArtist(a) for a in user['spotify_top_artists'])
+        if 'spotify_theme_track' in user:
+            self.theme_track: SpotifyTrack = SpotifyTrack(user['spotify_theme_track'])
 
     def distance_mi(self) -> int:
         return self._distance
