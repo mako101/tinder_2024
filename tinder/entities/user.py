@@ -4,7 +4,7 @@ from typing import Tuple
 
 from tinder.entities.entity import Entity
 from tinder.entities.socials import InstagramInfo, FacebookInfo, SpotifyTrack, SpotifyTopArtist
-from tinder.entities.photo import GenericPhoto, SizedImage, UserPhoto, MatchPhoto, ProfilePhoto
+from tinder.entities.photo import GenericPhoto, SizedImage, MatchPhoto, ProfilePhoto
 
 
 class Badge:
@@ -81,8 +81,9 @@ class School:
     __slots__ = ['name', 'metadata_id']
 
     def __init__(self, school: dict):
-        self.name = school['name']
-        self.metadata_id = school['metadata_id']
+        self.name: str = school['name']
+        if 'metadata_id' in school:
+            self.metadata_id: str = school['metadata_id']
 
 
 class Teaser:
@@ -145,13 +146,14 @@ class SelfUser(GenericUser):
         self.distance_filter: int = user['distance_filter']
         self.gender_filter: Gender = Gender(user['gender_filter'])
         self.email = user['email']
-        self.instagram = InstagramInfo(user['instagram'])
+        if 'instagram' in user:
+            self.instagram = InstagramInfo(user['instagram'])
         self.interested_in: Tuple[Gender, ...] = tuple(Gender(g) for g in user['interested_in'])
         if 'jobs' in user:
             self.job: Job = Job(user['jobs'])
         self.photo_optimizer_enabled: bool = user['photo_optimizer_enabled']
         self.last_online: str = user['ping_time']
-        self.position: Position = Position(user['position'])
+        self.position: Position = Position(user['pos'])
         self.position_info: PositionInfo = PositionInfo(user['pos_info'])
         if 'schools' in user:
             self.school: School = School(user['schools'][0])
@@ -203,9 +205,9 @@ class SwipeableUser(GenericUser):
 
     def __init__(self, user: dict):
         super().__init__(user)
-        self.photos: Tuple[UserPhoto] = tuple(UserPhoto(p) for p in user['photos'])
         self.job: Job = Job(user['jobs'])
-        self.school: School = School(user['schools'][0])
+        if len(user['schools']) > 0:
+            self.school: School = School(user['schools'][0])
         if 'city' in user:
             self.city: str = user['city']['name']
         self._distance: int = user['distance_mi']
@@ -250,7 +252,7 @@ class LikedUser(SwipeableUser):
         super().__init__(user)
         self.content_hash: str = user['content_hash']
         self.has_been_superliked: str = user['has_been_superliked']
-        self.expire_time: datetime = datetime.fromtimestamp(user['expire_time'])
+        self.expire_time: datetime = datetime.fromtimestamp(user['expire_time'] / 1000)
 
 
 class UserProfile(SwipeableUser):
@@ -275,7 +277,7 @@ class UserProfile(SwipeableUser):
         self.hide_age: bool = False
         if 'hide_age' in user:
             self.hide_age: bool = user['hide_age']
-        self.hide_distance: bool = user['hide_distance']
+        self.hide_distance: bool = False
         if 'hide_distance' in user:
             self.hide_distance: bool = user['hide_distance']
         self.is_travelling: bool = False
@@ -297,7 +299,6 @@ class LikePreview(Entity):
 
     def __init__(self, user: dict):
         super().__init__(user)
-        self.photos: Tuple[UserPhoto] = tuple(UserPhoto(p) for p in user['photos'])
         self.recently_active: bool = False
         if 'recently_active' in user:
             self.recently_active: bool = user['recently_active']

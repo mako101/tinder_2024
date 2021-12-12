@@ -42,12 +42,20 @@ class TinderClient:
 
     def get_user_profile(self, user_id: str) -> UserProfile:
         response = self._http.make_request(method='GET', route=f'/user/{user_id}').json()
-        return UserProfile(response['data'])
+        return UserProfile(response['results'])
 
     def get_self_user(self) -> SelfUser:
         response = self._http.make_request(method='GET', route='/profile').json()
-        return SelfUser(response['data'])
+        return SelfUser(response)
 
     def get_liked_users(self) -> Tuple[LikedUser]:
         response = self._http.make_request(method='GET', route='/v2/my-likes').json()
-        return tuple(LikedUser(user['user']) for user in response['data']['results'])
+        result = []
+        for user in response['data']['results']:
+            transformed = {}
+            transformed.update(user.items())
+            transformed.pop('type')
+            transformed.pop('user')
+            transformed.update(user['user'].items())
+            result.append(transformed)
+        return tuple(LikedUser(user) for user in result)

@@ -68,14 +68,29 @@ class Hash:
 
 
 class GenericPhoto(Entity):
-    __slots__ = ['crop_info', 'url', 'processedFiles', 'file_name', 'extension']
+    __slots__ = \
+        ['crop_info',
+         'url',
+         'processed_files',
+         'processed_videos',
+         'file_name',
+         'extension',
+         'type'
+         ]
 
     def __init__(self, photo: dict):
         super().__init__(photo)
         self.crop_info: CropInfo = CropInfo(photo['crop_info'])
         self.url: str = photo['url']
-        self.processedFiles: Tuple[SizedImage] = \
+        if 'type' in photo:
+            self.type: str = photo['type']
+        else:
+            self.type: str = photo['media_type']
+        self.processed_files: Tuple[SizedImage] = \
             tuple(SizedImage(i) for i in photo['processedFiles'])
+        if self.type == 'video':
+            self.processed_videos: Tuple[SizedImage] = \
+                tuple(SizedImage(i) for i in photo['processedFiles'])
         self.file_name: str = photo['fileName']
         self.extension: str = photo['extension']
 
@@ -83,7 +98,6 @@ class GenericPhoto(Entity):
 class ProfilePhoto(GenericPhoto):
     __slots__ = [
         'assets',
-        'type',
         'created_at',
         'updated_at',
         'fb_id',
@@ -98,10 +112,9 @@ class ProfilePhoto(GenericPhoto):
     def __init__(self, photo: dict):
         super().__init__(photo)
         self.assets: dict = photo['assets']
-        self.type: str = photo['type']
         self.created_at: str = photo['created_at']
         self.updated_at: str = photo['updated_at']
-        self.fb_id: str = photo['fb_id']
+        self.fb_id: str = photo['fbId']
         self.webp_qf: int = photo['webp_qf'][0]
         self.rank: int = photo['rank']
         self.score: float = photo['score']
@@ -110,22 +123,13 @@ class ProfilePhoto(GenericPhoto):
         self.dhash: Hash = Hash(photo['dhash'])
 
 
-class UserPhoto(GenericPhoto):
-    __slots__ = ['media_type']
-
-    def __init__(self, photo: dict):
-        super().__init__(photo)
-        self.media_type: str = photo['media_type']
-
-
 class MatchPhoto(GenericPhoto):
-    __slots__ = ['assets', 'type', 'webp_qf', 'rank', 'score', 'win_count']
+    __slots__ = ['assets', 'webp_qf', 'rank', 'score', 'win_count']
 
     def __init__(self, photo: dict):
         super().__init__(photo)
         self.assets: dict = photo['assets']
-        self.type: str = photo['type']
-        if type is 'image':
+        if type == 'image':
             self.webp_qf: int = photo['webp_qf'][0]
             self.rank: int = photo['rank']
             self.score: float = photo['score']

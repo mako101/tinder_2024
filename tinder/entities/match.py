@@ -29,7 +29,8 @@ class Match(Entity):
         'following_moments',
         'matched_user',
         'liked_content',
-        'seen'
+        'seen',
+        'last_seen_message_id'
     ]
 
     def __init__(self, match: dict):
@@ -58,14 +59,18 @@ class Match(Entity):
         self.matched_user: MatchedUser = MatchedUser(match['person'])
         if 'liked_content' in match:
             liked_content = match['liked_content']
-            # if is_opener is true the self user liked first. Thus the other user "closed" aka
+            # if is_opener is true the self user liked first. Thus, the other user "closed" aka
             # completed the match. If is_opener is false the other use was the match "opener"
             if self.is_opener:
                 self.liked_content: MatchPhoto = (liked_content['by_closer']['photo'])
             else:
                 self.liked_content: MatchPhoto = (liked_content['by_opener']['photo'])
+        self.seen: bool = False
+        self.last_seen_message_id: str = ''
         if 'seen' in match:
             self.seen: bool = match['seen']['match_seen']
+            if 'last_seen_message_id' in match['seen']:
+                self.last_seen_message_id: str = match['seen']['last_seen_message_id']
 
     def send_message(self, message: Union[str, Message]) -> Message:
 
