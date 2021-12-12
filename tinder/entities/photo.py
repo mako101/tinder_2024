@@ -125,7 +125,8 @@ class MatchPhoto(GenericPhoto):
         super().__init__(photo)
         self.assets: dict = photo['assets']
         self.type: str = photo['type']
-        self.webp_qf: int = photo['webp_qf'][0]
-        self.rank: int = photo['rank']
-        self.score: float = photo['score']
-        self.win_count: int = photo['win_count']
+        if type is 'image':
+            self.webp_qf: int = photo['webp_qf'][0]
+            self.rank: int = photo['rank']
+            self.score: float = photo['score']
+            self.win_count: int = photo['win_count']

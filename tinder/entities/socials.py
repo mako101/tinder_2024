@@ -35,13 +35,20 @@ class FacebookInfo:
     ]
 
     def __init__(self, facebook: dict):
-        self.common_connections = facebook['common_connections']
-        self.connection_count = facebook['connection_count']
-        self.common_interests = facebook['common_interests']
-        self.common_likes = facebook['common_likes']
-        self.common_like_count = facebook['common_like_count']
-        self.common_friends = facebook['common_friends']
-        self.common_friend_count = facebook['common_friend_count']
+        if 'common_connections' in facebook:
+            self.common_connections = facebook['common_connections']
+        if 'connection_count' in facebook:
+            self.connection_count = facebook['connection_count']
+        if 'common_interests' in facebook:
+            self.common_interests = facebook['common_interests']
+        if 'common_likes' in facebook:
+            self.common_likes = facebook['common_likes']
+        if 'common_like_count' in facebook:
+            self.common_like_count = facebook['common_like_count']
+        if 'common_friends' in facebook:
+            self.common_friends = facebook['common_friends']
+        if 'common_friend_count' in facebook:
+            self.common_friend_count = facebook['common_friend_count']
 
 
 class SpotifyEntity(Entity):

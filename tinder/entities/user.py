@@ -98,11 +98,15 @@ class GenericUser(Entity):
 
     def __init__(self, user: dict):
         super().__init__(user)
-        self.bio: str = user['bio']
+        self.bio: str = ''
+        if 'bio' in user:
+            self.bio: str = user['bio']
         self.birth_date: str = user['birth_date']
         self.name: str = user['name']
         self.gender: Gender = Gender(user['gender'])
-        self.badges: Tuple[Badge] = tuple(Badge(b) for b in user['badges'])
+        self.badges: Tuple[Badge] = tuple()
+        if 'badges' in user:
+            self.badges: Tuple[Badge] = tuple(Badge(b) for b in user['badges'])
         self.photos: Tuple[GenericPhoto] = tuple(GenericPhoto(p) for p in user['photos'])
 
     def get_user_profile(self):
@@ -169,7 +173,6 @@ class MatchedUser(GenericUser):
         super().__init__(user)
         self.photos: Tuple[MatchPhoto] = tuple(MatchPhoto(p) for p in user['photos'])
         self.last_online: str = user['ping_time']
-        self.birth_date_info: str = user['birth_date_info']
         self.hide_age: bool = False
         if 'hide_age' in user:
             self.hide_age: bool = user['hide_age']
