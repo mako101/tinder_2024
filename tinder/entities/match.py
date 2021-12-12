@@ -5,6 +5,7 @@ from tinder.entities.message import Message
 from tinder.entities.photo import MatchPhoto
 from tinder.entities.socials import FacebookInfo
 from tinder.entities.user import MatchedUser
+from tinder.http import Http
 
 
 class Match(Entity):
@@ -33,13 +34,13 @@ class Match(Entity):
         'last_seen_message_id'
     ]
 
-    def __init__(self, match: dict):
+    def __init__(self, match: dict, http: Http):
         """
         Creates a new match object
 
         :param match: the dictionary to construct the match from
         """
-        super().__init__(match)
+        super().__init__(match, http)
         self.closed: bool = match['closed']
         self.facebook: FacebookInfo = FacebookInfo(match)
         self.created_date: str = match['created_date']
@@ -91,7 +92,8 @@ class MessageHistory:
     For example, a message at index 0 is more recent than a message at index 1.
     """
 
-    def __init__(self):
+    def __init__(self, http: Http):
+        self.http: Http = http
         pass
 
     def get_message_by_id(self) -> Message:

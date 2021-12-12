@@ -1,6 +1,5 @@
 from typing import Tuple
 
-from tinder.entities.entity import Entity
 from tinder.entities.photo import SizedImage
 
 
@@ -51,11 +50,11 @@ class FacebookInfo:
             self.common_friend_count = facebook['common_friend_count']
 
 
-class SpotifyEntity(Entity):
-    __slots__ = ['name']
+class SpotifyEntity:
+    __slots__ = ['id', 'name']
 
     def __init__(self, entity: dict):
-        super().__init__(entity)
+        self.id = entity['id']
         self.name: str = entity['name']
 
 

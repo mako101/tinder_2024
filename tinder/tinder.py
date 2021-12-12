@@ -15,12 +15,12 @@ class TinderClient:
 
     def get_recommendations(self) -> Tuple[Recommendation]:
         response = self._http.make_request(method='GET', route='/recs/core').json()
-        return tuple(Recommendation(r) for r in response['results'])
+        return tuple(Recommendation(r, self._http) for r in response['results'])
 
     def get_like_previews(self) -> Tuple[LikePreview]:
         response = \
             self._http.make_request(method='GET', route='/v2/fast-match/teasers').json()
-        return tuple(LikePreview(user['user']) for user in response['data']['results'])
+        return tuple(LikePreview(user['user'], self._http) for user in response['data']['results'])
 
     def load_all_matches(self, page_token: str = None, count: int = 60) -> Tuple[Match]:
         route = f'/v2/matches?count={count}&messages=60'
@@ -28,7 +28,7 @@ class TinderClient:
             route = f'{route}&page_token={page_token}'
 
         data = self._http.make_request(method='GET', route=route).json()['data']
-        matches: List[Match] = list(Match(m) for m in data['matches'])
+        matches: List[Match] = list(Match(m, self._http) for m in data['matches'])
         if 'next_page_token' in data:
             matches.extend(self.load_all_matches(data['next_page_token'], count))
 
@@ -38,11 +38,11 @@ class TinderClient:
         response = self._http \
             .make_request(method='GET', route=f'/v2/matches/{match_id}?messages=60') \
             .json()
-        return Match(response['data'])
+        return Match(response['data'], self._http)
 
     def get_user_profile(self, user_id: str) -> UserProfile:
         response = self._http.make_request(method='GET', route=f'/user/{user_id}').json()
-        return UserProfile(response['results'])
+        return UserProfile(response['results'], self._http)
 
     def get_self_user(self) -> SelfUser:
         response = self._http.make_request(method='GET', route='/profile').json()
@@ -58,4 +58,4 @@ class TinderClient:
             transformed.pop('user')
             transformed.update(user['user'].items())
             result.append(transformed)
-        return tuple(LikedUser(user) for user in result)
+        return tuple(LikedUser(user, self._http) for user in result)

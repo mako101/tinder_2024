@@ -5,6 +5,7 @@ from typing import Tuple
 from tinder.entities.entity import Entity
 from tinder.entities.socials import InstagramInfo, FacebookInfo, SpotifyTrack, SpotifyTopArtist
 from tinder.entities.photo import GenericPhoto, SizedImage, MatchPhoto, ProfilePhoto
+from tinder.http import Http
 
 
 class Badge:
@@ -97,8 +98,8 @@ class Teaser:
 class GenericUser(Entity):
     __slots__ = ['bio', 'birth_date', 'name', 'gender', 'badges', 'photos']
 
-    def __init__(self, user: dict):
-        super().__init__(user)
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
         self.bio: str = ''
         if 'bio' in user:
             self.bio: str = user['bio']
@@ -108,7 +109,7 @@ class GenericUser(Entity):
         self.badges: Tuple[Badge] = tuple()
         if 'badges' in user:
             self.badges: Tuple[Badge] = tuple(Badge(b) for b in user['badges'])
-        self.photos: Tuple[GenericPhoto] = tuple(GenericPhoto(p) for p in user['photos'])
+        self.photos: Tuple[GenericPhoto] = tuple(GenericPhoto(p, http) for p in user['photos'])
 
     def get_user_profile(self):
         pass
@@ -203,8 +204,8 @@ class SwipeableUser(GenericUser):
         'theme_track'
     ]
 
-    def __init__(self, user: dict):
-        super().__init__(user)
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
         self.job: Job = Job(user['jobs'])
         if len(user['schools']) > 0:
             self.school: School = School(user['schools'][0])
@@ -248,8 +249,8 @@ class SwipeableUser(GenericUser):
 class LikedUser(SwipeableUser):
     __slots__ = ['content_hash', 'has_been_superliked', 'expire_time']
 
-    def __init__(self, user: dict):
-        super().__init__(user)
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
         self.content_hash: str = user['content_hash']
         self.has_been_superliked: str = user['has_been_superliked']
         self.expire_time: datetime = datetime.fromtimestamp(user['expire_time'] / 1000)
@@ -266,8 +267,8 @@ class UserProfile(SwipeableUser):
         'is_travelling'
     ]
 
-    def __init__(self, user: dict):
-        super().__init__(user)
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
         if 'sexual_orientations' in user:
             self.sexual_orientations: Tuple[str] =\
                 tuple(str(s['name']) for s in user['sexual_orientations'])
@@ -288,8 +289,8 @@ class UserProfile(SwipeableUser):
 class Recommendation(SwipeableUser):
     __slots__ = ['group_matched', 'content_hash']
 
-    def __init__(self, user: dict):
-        super().__init__(user)
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
         self.group_matched = user['group_matched']
         self.content_hash = user['content_hash']
 
@@ -297,8 +298,8 @@ class Recommendation(SwipeableUser):
 class LikePreview(Entity):
     __slots__ = ['photos', 'recently_active']
 
-    def __init__(self, user: dict):
-        super().__init__(user)
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
         self.recently_active: bool = False
         if 'recently_active' in user:
             self.recently_active: bool = user['recently_active']

@@ -3,6 +3,7 @@ from enum import Enum
 
 from tinder.entities.entity import Entity
 from tinder.entities.socials import SpotifySongAttachment
+from tinder.http import Http
 
 
 class Message(Entity):
@@ -16,8 +17,8 @@ class Message(Entity):
         'attachment'
     ]
 
-    def __init__(self, message: dict):
-        super().__init__(message)
+    def __init__(self, message: dict, http: Http):
+        super().__init__(message, http)
         self.match_id: str = message['match_id']
         self.sent_date: datetime = datetime.fromtimestamp(message['timestamp'] / 1000)
         self.content: str = message['message']

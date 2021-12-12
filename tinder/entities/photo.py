@@ -1,6 +1,7 @@
 from typing import Tuple
 
 from tinder.entities.entity import Entity
+from tinder.http import Http
 
 
 class FacialScope:
@@ -78,8 +79,8 @@ class GenericPhoto(Entity):
          'type'
          ]
 
-    def __init__(self, photo: dict):
-        super().__init__(photo)
+    def __init__(self, photo: dict, http: Http):
+        super().__init__(photo, http)
         self.crop_info: CropInfo = CropInfo(photo['crop_info'])
         self.url: str = photo['url']
         if 'type' in photo:
