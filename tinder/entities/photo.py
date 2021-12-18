@@ -115,7 +115,8 @@ class ProfilePhoto(GenericPhoto):
 
     def __init__(self, photo: dict, http: Http):
         super().__init__(photo, http)
-        self.assets: dict = photo['assets']
+        # TODO wrap assets object
+        self.assets: Tuple[SizedImage] = tuple(SizedImage(i) for i in photo['assets'])
         self.created_at: str = photo['created_at']
         self.updated_at: str = photo['updated_at']
         self.fb_id: str = photo['fbId']
@@ -132,7 +133,7 @@ class MatchPhoto(GenericPhoto):
 
     def __init__(self, photo: dict, http: Http):
         super().__init__(photo, http)
-        self.assets: dict = photo['assets']
+        self.assets: Tuple[SizedImage] = tuple(SizedImage(i) for i in photo['assets'])
         if type == 'image':
             self.webp_qf: int = photo['webp_qf'][0]
             self.rank: int = photo['rank']

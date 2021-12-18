@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, List, Union
 
 from tinder.entities.entity import Entity
 from tinder.entities.socials import InstagramInfo, FacebookInfo, SpotifyTrack, SpotifyTopArtist
@@ -168,6 +168,92 @@ class SelfUser(GenericUser):
         self.show_gender_on_profile: bool = user['show_gender_on_profile']
         self.can_create_squad: bool = user['can_create_squad']
 
+    def update_interests(self, interests: Union[List[Interest], None]):
+        if interests is None:
+            self.http.make_request(method='DELETE', route='/v2/profile/userinterests')
+            return
+
+        if len(interests) > 5:
+            raise ValueError('You cannot select more than 5 interests!')
+
+        body = {
+            'user': {
+                'user_interests': {
+                    'selected_interests': []
+                }
+            }
+        }
+        for interest in interests:
+            body['user']['user_interests']['selected_interests'].append({
+                'id': interest.id,
+                'name': interest.name
+            })
+
+        self.http.make_request(method='POST', route='/v2/profile', body=body)
+
+    def update_descriptors(self, descriptors: dict):
+        self.http.make_request(method='POST', route='/v2/profile', body=descriptors)
+
+    def update_job(self, job: Union[Job, None]):
+        body = {
+            'jobs': [
+                {
+                    'company': {
+                        'displayed': True,
+                        'name': ''
+                    },
+                    'title': {
+                        'displayed': True,
+                        'name': ''
+                    }
+                }
+            ]
+        }
+        if job is not None:
+            body['jobs'][0]['company']['name'] = job.company
+            body['jobs'][0]['title']['name'] = job.title
+
+        self.http.make_request(method='POST', route='/v2/profile/job', body=body)
+
+    def update_bio(self, bio: str):
+        self.http.make_request(method='POST', route='/v2/profile', body={'user': {'bio': bio}})
+
+    def update_school(self, school: str):
+        body = {'schools': []}
+        if school is not '':
+            body['schools'] = {
+                'displayed': True,
+                'name': school
+            }
+
+        self.http.make_request(method='POST', route='/v2/profile/school', body=body)
+
+    def update_city(self, city: Union[dict, None]):
+        if city is None:
+            self.http.make_request(method='DELETE', route='/v2/profile/city')
+        else:
+            self.http.make_request(method='POST', route='/v2/profile/city', body=city)
+
+    def update_gender(self, gender: Gender, show_gender: bool):
+        self.http.make_request(method='POST', route='/v2/profile', body={
+            'user': {
+                'show_gender_on_profile': show_gender,
+                'gender': gender
+            }
+        })
+
+    def update_search_preferences(self, **kwargs):
+        """
+        Update your search preferences. The following values are supported:
+        <em>age_filter_min, age_filter_max, gender_filter, gender, distance_filter</em>
+
+        :param kwargs: search preferences to update
+        """
+        body = {'user': {}}
+        for key, value in kwargs:
+            body['user'][key] = value
+        self.http.make_request(method='POST', route='/v2/profile', body=body)
+
 
 class MatchedUser(GenericUser):
     __slots__ = [
@@ -277,7 +363,7 @@ class UserProfile(SwipeableUser):
     def __init__(self, user: dict, http: Http):
         super().__init__(user, http)
         if 'sexual_orientations' in user:
-            self.sexual_orientations: Tuple[str] =\
+            self.sexual_orientations: Tuple[str] = \
                 tuple(str(s['name']) for s in user['sexual_orientations'])
         self.last_online: str = user['ping_time']
         self.birth_date_info: str = user['birth_date_info']
