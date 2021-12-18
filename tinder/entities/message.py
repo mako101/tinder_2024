@@ -42,6 +42,9 @@ class Message(Entity):
         elif self.attachment_type == AttachmentType.STICKER:
             self.attachment = StickerAttachment(message)
 
+    def __str__(self):
+        return f'Message({self.id}:\"{self.content}\")'
+
 
 class AttachmentType(Enum):
     GIF = 'gif',

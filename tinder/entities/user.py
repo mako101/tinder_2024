@@ -117,6 +117,9 @@ class GenericUser(Entity):
     def report(self):
         pass
 
+    def __str__(self):
+        return f'GenericUser({self.id}:{self.name})'
+
 
 class SelfUser(GenericUser):
     __slots__ = [

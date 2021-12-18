@@ -12,3 +12,6 @@ class Entity:
             self.id: str = entity['id']
         else:
             raise TypeError('Not an entity!')
+
+    def __str__(self):
+        return f'Tinder Entity({self.id})'

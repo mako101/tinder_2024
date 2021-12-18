@@ -87,6 +87,9 @@ class Match(Entity):
     def delete_match(self):
         self.http.make_request(method='DELETE', route=f'match/{self.id}')
 
+    def __str__(self):
+        return f'Match({self.id}:{self.matched_user})'
+
 
 class MessageHistory:
     """

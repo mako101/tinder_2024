@@ -95,6 +95,9 @@ class GenericPhoto(Entity):
         self.file_name: str = photo['fileName']
         self.extension: str = photo['extension']
 
+    def __str__(self):
+        return f'Photo({self.id})'
+
 
 class ProfilePhoto(GenericPhoto):
     __slots__ = [

@@ -57,6 +57,9 @@ class SpotifyEntity:
         self.id = entity['id']
         self.name: str = entity['name']
 
+    def __str__(self):
+        return f'SpotifyEntity({self.id}:{self.name})'
+
 
 class SpotifyAlbum(SpotifyEntity):
     __slots__ = ['images']
