@@ -20,7 +20,10 @@ class Message(Entity):
     def __init__(self, message: dict, http: Http):
         super().__init__(message, http)
         self.match_id: str = message['match_id']
-        self.sent_date: datetime = datetime.fromtimestamp(message['timestamp'] / 1000)
+        if type(message['sent_date']) is str:
+            self.sent_date: datetime = datetime.fromtimestamp(message['timestamp'] / 1000)
+        else:
+            self.sent_date: datetime = datetime.fromtimestamp(message['sent_date'] / 1000)
         self.content: str = message['message']
         # TODO add objects instead of ids
         self.author_id: str = message['from']

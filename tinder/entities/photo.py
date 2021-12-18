@@ -110,8 +110,8 @@ class ProfilePhoto(GenericPhoto):
         'dhash'
     ]
 
-    def __init__(self, photo: dict):
-        super().__init__(photo)
+    def __init__(self, photo: dict, http: Http):
+        super().__init__(photo, http)
         self.assets: dict = photo['assets']
         self.created_at: str = photo['created_at']
         self.updated_at: str = photo['updated_at']
@@ -127,8 +127,8 @@ class ProfilePhoto(GenericPhoto):
 class MatchPhoto(GenericPhoto):
     __slots__ = ['assets', 'webp_qf', 'rank', 'score', 'win_count']
 
-    def __init__(self, photo: dict):
-        super().__init__(photo)
+    def __init__(self, photo: dict, http: Http):
+        super().__init__(photo, http)
         self.assets: dict = photo['assets']
         if type == 'image':
             self.webp_qf: int = photo['webp_qf'][0]

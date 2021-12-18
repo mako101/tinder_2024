@@ -1,4 +1,5 @@
-from typing import Tuple, Union
+from collections import deque
+from typing import Tuple, Union, List
 
 from tinder.entities.entity import Entity
 from tinder.entities.message import Message
@@ -46,7 +47,7 @@ class Match(Entity):
         self.created_date: str = match['created_date']
         self.dead: bool = match['dead']
         self.last_activity_date: str = match['last_activity_date']
-        self.message_history: MessageHistory = MessageHistory()
+        self.message_history: MessageHistory = MessageHistory(http, self.id)
         self.pending: bool = match['pending']
         self.is_super_like: bool = match['is_super_like']
         self.is_boost_match: bool = match['is_boost_match']
@@ -57,7 +58,7 @@ class Match(Entity):
         """`true` if the self user liked first"""
         self.following: bool = match['following']
         self.following_moments: bool = match['following_moments']
-        self.matched_user: MatchedUser = MatchedUser(match['person'])
+        self.matched_user: MatchedUser = MatchedUser(match['person'], http)
         if 'liked_content' in match:
             liked_content = match['liked_content']
             # if is_opener is true the self user liked first. Thus, the other user "closed" aka
@@ -74,11 +75,17 @@ class Match(Entity):
                 self.last_seen_message_id: str = match['seen']['last_seen_message_id']
 
     def send_message(self, message: Union[str, Message]) -> Message:
-
-        pass
+        if message is str:
+            content = message
+        else:
+            content = message.content
+        response = self.http.make_request(method='POST',
+                                          route=f'/user/matches/{self.id}',
+                                          body={'message': content}).json()
+        return Message(response, self.http)
 
     def delete_match(self):
-        pass
+        self.http.make_request(method='DELETE', route=f'match/{self.id}')
 
 
 class MessageHistory:
@@ -92,18 +99,35 @@ class MessageHistory:
     For example, a message at index 0 is more recent than a message at index 1.
     """
 
-    def __init__(self, http: Http):
+    def __init__(self, http: Http, match_id: str):
+        self._messages: deque = deque()
         self.http: Http = http
-        pass
+        self._match_id = match_id
 
-    def get_message_by_id(self) -> Message:
+        route = f'/v2/matches/{match_id}/messages?count=1'
+        data = http.make_request(method='GET', route=route).json()['data']
+        messages: List[Message] = list(Message(m, self.http) for m in data['messages'])
+        if 'next_page_token' in data:
+            self._page_token = data['next_page_token']
+        else:
+            self._page_token = None
+
+        self._messages.extendleft(messages)
+
+    def get_message_by_id(self, message_id: str) -> Message:
         """
         Gets a message by its id. Will request the message from the API if the message is not
         present in the cache.
 
         :return: a message by its id
         """
-        pass
+
+        filtered: list = list(filter(lambda message: message.id == message_id, self._messages))
+        if len(filtered) == 0:
+            return Message(self.http.make_request(method='GET',
+                                                  route=f'/message/{message_id}').json(), self.http)
+        else:
+            return filtered[0]
 
     def get_messages(self) -> Tuple[Message]:
         """
@@ -111,7 +135,7 @@ class MessageHistory:
 
         :return: all messages inside the cache
         """
-        pass
+        return tuple(self._messages)
 
     def get_messages_before(self, message_id: str) -> Tuple[Message]:
         """
@@ -133,15 +157,30 @@ class MessageHistory:
         """
         pass
 
-    def load_all_messages(self, count: int = 60, page_token: str = None) -> Tuple[Message]:
+    def load_all_messages(self, page_token: str = None) -> Tuple[Message]:
         """
         Requests all messages from the Tinder API.
 
-        :param count: the messages to load per request
         :param page_token: token of the next page
         :return: all messages of a match
         """
-        pass
+        if self._page_token is None:
+            return tuple(self._messages)
+        elif page_token is None:
+            page_token = self._page_token
+
+        route = f'/v2/matches/{self._match_id}/messages?count=60'
+        if page_token:
+            route = f'{route}&page_token={page_token}'
+
+        data = self.http.make_request(method='GET', route=route).json()['data']
+        messages: List[Message] = list(Message(m, self.http) for m in data['messages'])
+        if 'next_page_token' in data:
+            messages.extend(self.load_all_messages(data['next_page_token']))
+
+        self._messages.extendleft(messages)
+
+        return tuple(self._messages)
 
     def size(self):
         """
@@ -149,4 +188,4 @@ class MessageHistory:
 
         :return: the size of the cache
         """
-        pass
+        return len(self._messages)

@@ -1,5 +1,6 @@
 import logging
 import time
+from math import floor
 from random import random
 
 import requests
@@ -32,7 +33,7 @@ class Http:
         self._request_count += 1
 
         if self._request_count > 2:
-            timeout = self._timeout * random()
+            timeout = floor(self._timeout * random())
             logging.debug(f'Too many requests. Waiting for {timeout} secs')
             time.sleep(timeout)
             self._request_count = 0
@@ -64,7 +65,7 @@ class Http:
             elif status == 404:
                 raise NotFound(response)
             elif status == 429:
-                timeout = self._timeout * random()
+                timeout = floor(self._timeout * random())
                 logging.debug(f'Too many requests. Waiting for {timeout} secs')
                 time.sleep(timeout)
                 logging.debug('Reattempting...')

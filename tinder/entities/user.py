@@ -138,9 +138,9 @@ class SelfUser(GenericUser):
         'can_create_squad'
     ]
 
-    def __init__(self, user: dict):
-        super().__init__(user)
-        self.photos: Tuple[ProfilePhoto] = tuple(ProfilePhoto(p) for p in user['photos'])
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
+        self.photos: Tuple[ProfilePhoto] = tuple(ProfilePhoto(p, http) for p in user['photos'])
         self.age_filter_min: int = user['age_filter_min']
         self.age_filter_max: int = user['age_filter_max']
         self.create_date: int = user['create_date']
@@ -172,9 +172,9 @@ class MatchedUser(GenericUser):
         'facebook'
     ]
 
-    def __init__(self, user: dict):
-        super().__init__(user)
-        self.photos: Tuple[MatchPhoto] = tuple(MatchPhoto(p) for p in user['photos'])
+    def __init__(self, user: dict, http: Http):
+        super().__init__(user, http)
+        self.photos: Tuple[MatchPhoto] = tuple(MatchPhoto(p, http) for p in user['photos'])
         self.last_online: str = user['ping_time']
         self.hide_age: bool = False
         if 'hide_age' in user:
