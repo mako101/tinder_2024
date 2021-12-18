@@ -112,10 +112,14 @@ class GenericUser(Entity):
         self.photos: Tuple[GenericPhoto] = tuple(GenericPhoto(p, http) for p in user['photos'])
 
     def get_user_profile(self):
-        pass
+        response = self.http.make_request(method='GET', route=f'/user/{self.id}').json()
+        return UserProfile(response['results'], self.http)
 
-    def report(self):
-        pass
+    def report(self, cause: str, text: str):
+        self.http.make_request(method='POST', route=f'/report/{self.id}', body={
+            'cause': cause,
+            'text': text
+        })
 
     def __str__(self):
         return f'GenericUser({self.id}:{self.name})'
@@ -240,13 +244,13 @@ class SwipeableUser(GenericUser):
         return self._distance * 1.609344
 
     def like(self):
-        pass
+        self.http.make_request(method='GET', route=f'/like/{self.id}')
 
     def dislike(self):
-        pass
+        self.http.make_request(method='GET', route=f'/dislike/{self.id}')
 
     def superlike(self):
-        pass
+        self.http.make_request(method='POST', route=f'/like/{self.id}/super')
 
 
 class LikedUser(SwipeableUser):
