@@ -12,6 +12,7 @@ class TinderClient:
     def __init__(self, auth_token: str, log_level: int = logging.INFO, ratelimit: int = 10):
         self._http = Http(auth_token, timeout_factor=ratelimit)
         self._self_user = None
+        self._matches: dict = {}
         logging.getLogger().name = 'tinder-py'
         logging.getLogger().setLevel(log_level)
         logging.getLogger('urllib3').setLevel(logging.WARNING)
@@ -41,11 +42,19 @@ class TinderClient:
         if 'next_page_token' in data:
             matches.extend(self.load_all_matches(data['next_page_token']))
 
+        self._matches.clear()
+        for match in matches:
+            self._matches.update(key=match.id, value=match)
         return tuple(matches)
 
     def get_match(self, match_id: str) -> Match:
-        response = self._http.make_request(method='GET', route=f'/v2/matches/{match_id}').json()
-        return Match(response['data'], self._http)
+        if match_id in self._matches:
+            return self._matches[match_id]
+        else:
+            response = self._http.make_request(method='GET', route=f'/v2/matches/{match_id}').json()
+            match = Match(response['data'], self._http)
+            self._matches[match.id] = match
+            return match
 
     def get_user_profile(self, user_id: str) -> UserProfile:
         response = self._http.make_request(method='GET', route=f'/user/{user_id}').json()

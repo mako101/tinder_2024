@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Tuple, Union, List
+from typing import Tuple, Union
 
 from tinder.entities.entity import Entity
 from tinder.entities.message import Message
@@ -107,7 +107,7 @@ class MessageHistory:
         self.http: Http = http
         self._match_id = match_id
 
-        route = f'/v2/matches/{match_id}/messages?count=1'
+        route = f'/v2/matches/{match_id}/messages?count=60'
         data = http.make_request(method='GET', route=route).json()['data']
         if 'next_page_token' in data:
             self._page_token = data['next_page_token']
@@ -153,7 +153,7 @@ class MessageHistory:
         return tuple(self._messages)
 
     def _load_messages(self, page_token: str = None) -> Tuple[Message]:
-        route = f'/v2/matches/{self._match_id}/messages?count=1'
+        route = f'/v2/matches/{self._match_id}/messages?count=60'
         if page_token:
             route = f'{route}&page_token={page_token}'
 
