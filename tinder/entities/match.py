@@ -109,13 +109,12 @@ class MessageHistory:
 
         route = f'/v2/matches/{match_id}/messages?count=1'
         data = http.make_request(method='GET', route=route).json()['data']
-        messages: List[Message] = list(Message(m, self.http) for m in data['messages'])
         if 'next_page_token' in data:
             self._page_token = data['next_page_token']
         else:
             self._page_token = None
 
-        self._messages.extendleft(messages)
+        self._messages.extendleft(Message(m, self.http) for m in data['messages'])
 
     def get_message_by_id(self, message_id: str) -> Message:
         """
@@ -140,50 +139,30 @@ class MessageHistory:
         """
         return tuple(self._messages)
 
-    def get_messages_before(self, message_id: str) -> Tuple[Message]:
-        """
-        Gets all messages sent before the provided message id.
-
-        This will only consider cached messages.
-
-        :return: all messages sent before the provided message id
-        """
-        pass
-
-    def get_messages_after(self, message_id: str) -> Tuple[Message]:
-        """
-        Gets all messages sent after the provided message id.
-
-        This will only consider cached messages.
-
-        :return: all messages sent after the provided message id
-        """
-        pass
-
-    def load_all_messages(self, page_token: str = None) -> Tuple[Message]:
+    def load_all_messages(self, ) -> Tuple[Message]:
         """
         Requests all messages from the Tinder API.
 
-        :param page_token: token of the next page
         :return: all messages of a match
         """
         if self._page_token is None:
             return tuple(self._messages)
-        elif page_token is None:
-            page_token = self._page_token
 
-        route = f'/v2/matches/{self._match_id}/messages?count=60'
+        self._messages.extendleft(self._load_messages(self._page_token))
+
+        return tuple(self._messages)
+
+    def _load_messages(self, page_token: str = None) -> Tuple[Message]:
+        route = f'/v2/matches/{self._match_id}/messages?count=1'
         if page_token:
             route = f'{route}&page_token={page_token}'
 
         data = self.http.make_request(method='GET', route=route).json()['data']
-        messages: List[Message] = list(Message(m, self.http) for m in data['messages'])
+        messages: list = list(Message(m, self.http) for m in data['messages'])
         if 'next_page_token' in data:
-            messages.extend(self.load_all_messages(data['next_page_token']))
+            messages.extend(self._load_messages(data['next_page_token']))
 
-        self._messages.extendleft(messages)
-
-        return tuple(self._messages)
+        return tuple(messages)
 
     def size(self):
         """
