@@ -26,6 +26,11 @@ class Http:
         self._timeout = timeout_factor
         logging.basicConfig(level=log_level)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
+        if timeout_factor < 1:
+            self._logger.warning(
+                f"The ratelimit multiplicator is set to {timeout_factor}."
+                "This might result in API spam and banned accounts!"
+            )
 
     def make_request(self, **kwargs) -> requests.Response:
         route = kwargs.get("route")
