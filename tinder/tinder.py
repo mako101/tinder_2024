@@ -63,9 +63,7 @@ class TinderClient:
         response = self._http.make_request(
             method="POST",
             route="/updates",
-            body={"nudge": True,
-                  "last_activity_date":
-                      f"{last_activity_date}"},
+            body={"nudge": True, "last_activity_date": f"{last_activity_date}"},
         ).json()
         return Update(response)
 

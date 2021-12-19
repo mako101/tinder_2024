@@ -91,8 +91,7 @@ class Match(Entity):
         else:
             content = message.content
         response = self.http.make_request(
-            method="POST", route=f"/user/matches/{self.id}", body={
-                "message": content}
+            method="POST", route=f"/user/matches/{self.id}", body={"message": content}
         ).json()
         message = Message(response, self.http)
         self.message_history.add_message(message)

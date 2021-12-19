@@ -245,10 +245,9 @@ class SelfUser(GenericUser):
 
         body = {"user": {"user_interests": {"selected_interests": []}}}
         for interest in interests:
-            body["user"]["user_interests"]["selected_interests"].append({
-                "id": interest.id,
-                "name": interest.name
-            })
+            body["user"]["user_interests"]["selected_interests"].append(
+                {"id": interest.id, "name": interest.name}
+            )
 
         self.http.make_request(method="POST", route="/v2/profile", body=body)
 
@@ -271,13 +270,8 @@ class SelfUser(GenericUser):
         body = {
             "jobs": [
                 {
-                    "company": {
-                        "displayed": True, "name": ""
-                    },
-                    "title": {
-                        "displayed": True,
-                        "name": ""
-                    }}
+                    "company": {"displayed": True, "name": ""},
+                    "title": {"displayed": True, "name": ""}},
             ]
         }
         if job is not None:
@@ -336,8 +330,9 @@ class SelfUser(GenericUser):
         """
 
         self.http.make_request(
-            method="POST", route="/v2/profile", body={
-                "user": {"show_gender_on_profile": show_gender, "gender": gender}}
+            method="POST",
+            route="/v2/profile",
+            body={"user": {"show_gender_on_profile": show_gender, "gender": gender}},
         )
 
         self.gender = gender
