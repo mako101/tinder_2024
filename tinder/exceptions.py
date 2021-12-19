@@ -9,7 +9,7 @@ class Unauthorized(TinderException):
 class LoginException(Unauthorized):
 
     def __init__(self):
-        super().__init__('The provided token is invalid!')
+        super().__init__("The provided token is invalid!")
 
 
 class Forbidden(TinderException):

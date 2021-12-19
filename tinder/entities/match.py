@@ -34,7 +34,7 @@ class Match(Entity):
         "matched_user",
         "liked_content",
         "seen",
-        "last_seen_message_id"
+        "last_seen_message_id",
     ]
 
     def __init__(self, match: dict, http: Http, client):

@@ -28,7 +28,7 @@ class InstagramPhoto:
         self.image: str = photo["image"]
         self.thumbnail: str = photo["thumbnail"]
         self.ts: str = photo["ts"]
-        
+
 
 class FacebookInfo:
     """
@@ -42,7 +42,7 @@ class FacebookInfo:
         "common_likes",
         "common_like_count",
         "common_friends",
-        "common_friend_count"
+        "common_friend_count",
     ]
 
     def __init__(self, facebook: dict):

@@ -8,6 +8,7 @@ class FacialScope:
     """
     Facial Scope contains coordinates to locate faces inside a photo.
     """
+
     __slots__ = ["width_pct", "x_offset_pct", "height_pct", "y_offset_pct"]
 
     def __init__(self, scope: dict):
@@ -21,6 +22,7 @@ class Face:
     """
     A face inside a photo.
     """
+
     __slots__ = ["algo", "bounding_box_percentage"]
 
     def __init__(self, face: dict):
@@ -32,6 +34,7 @@ class CropInfo:
     """
     Photo processing metadata.
     """
+
     __slots__ = ["processed_by_bullseye", "user_customized", "user", "algo", "faces"]
 
     def __init__(self, crop_info: dict):
@@ -57,6 +60,7 @@ class SizedImage:
     """
     An image with a fixed size. Used in various places inside the API.
     """
+
     __slots__ = ["height", "width", "url", "quality"]
 
     def __init__(self, sized_image: dict):
@@ -76,6 +80,7 @@ class Hash:
     """
     A photo hash.
     """
+
     __slots__ = ["version", "value"]
 
     def __init__(self, hash_algo: dict):
@@ -95,7 +100,7 @@ class GenericPhoto(Entity):
         "processed_videos",
         "file_name",
         "extension",
-        "type"
+        "type",
     ]
 
     def __init__(self, photo: dict, http: Http):
@@ -106,11 +111,13 @@ class GenericPhoto(Entity):
             self.type: str = photo["type"]
         else:
             self.type: str = photo["media_type"]
-        self.processed_files: Tuple[SizedImage] = \
-            tuple(SizedImage(i) for i in photo["processedFiles"])
+        self.processed_files: Tuple[SizedImage] = tuple(
+            SizedImage(i) for i in photo["processedFiles"]
+        )
         if self.type == "video":
-            self.processed_videos: Tuple[SizedImage] = \
-                tuple(SizedImage(i) for i in photo["processedFiles"])
+            self.processed_videos: Tuple[SizedImage] = tuple(
+                SizedImage(i) for i in photo["processedFiles"]
+            )
         self.file_name: str = photo["fileName"]
         self.extension: str = photo["extension"]
 
@@ -133,7 +140,7 @@ class ProfilePhoto(GenericPhoto):
         "score",
         "win_count",
         "phash",
-        "dhash"
+        "dhash",
     ]
 
     def __init__(self, photo: dict, http: Http):

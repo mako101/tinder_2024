@@ -194,7 +194,7 @@ class SelfUser(GenericUser):
         "position_info",
         "school",
         "show_gender_on_profile",
-        "can_create_squad"
+        "can_create_squad",
     ]
 
     def __init__(self, user: dict, http: Http):
@@ -374,7 +374,7 @@ class MatchedUser(GenericUser):
         "hide_age",
         "hide_distance",
         "is_travelling",
-        "facebook"
+        "facebook",
     ]
 
     def __init__(self, user: dict, http: Http):
@@ -410,7 +410,7 @@ class SwipeableUser(GenericUser):
         "descriptors",
         "show_gender_on_profile",
         "top_artists",
-        "theme_track"
+        "theme_track",
     ]
 
     def __init__(self, user: dict, http: Http):
@@ -483,7 +483,7 @@ class UserProfile(SwipeableUser):
         "is_tinder_u",
         "hide_age",
         "hide_distance",
-        "is_travelling"
+        "is_travelling",
     ]
 
     def __init__(self, user: dict, http: Http):

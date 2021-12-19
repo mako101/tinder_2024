@@ -17,7 +17,7 @@ class Message(Entity):
         "author_id",
         "recipient_id",
         "attachment_type",
-        "attachment"
+        "attachment",
     ]
 
     def __init__(self, message: dict, http: Http):
@@ -46,7 +46,7 @@ class Message(Entity):
             self.attachment = StickerAttachment(message)
 
     def __str__(self):
-        return f"Message({self.id}:\"{self.content}\")"
+        return f'Message({self.id}:"{self.content}")'
 
 
 class AttachmentType(Enum):
