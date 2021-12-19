@@ -216,8 +216,12 @@ class SelfUser(GenericUser):
 
         self.http.make_request(method='POST', route='/v2/profile/job', body=body)
 
+        self.job = job
+
     def update_bio(self, bio: str):
         self.http.make_request(method='POST', route='/v2/profile', body={'user': {'bio': bio}})
+
+        self.bio = bio
 
     def update_school(self, school: str):
         body = {'schools': []}
@@ -228,6 +232,8 @@ class SelfUser(GenericUser):
             }
 
         self.http.make_request(method='POST', route='/v2/profile/school', body=body)
+
+        self.school = school
 
     def update_city(self, city: Union[dict, None]):
         if city is None:
@@ -243,6 +249,8 @@ class SelfUser(GenericUser):
             }
         })
 
+        self.gender = gender
+
     def update_search_preferences(self, **kwargs):
         """
         Update your search preferences. The following values are supported:
@@ -254,6 +262,9 @@ class SelfUser(GenericUser):
         for key, value in kwargs:
             body['user'][key] = value
         self.http.make_request(method='POST', route='/v2/profile', body=body)
+
+        for key, value in kwargs:
+            self.__setattr__(key, value)
 
 
 class MatchedUser(GenericUser):
