@@ -22,6 +22,10 @@ class TinderClient:
             pass
         if self._self_user is None:
             raise LoginException()
+        self.active = True
+
+    def shutdown(self):
+        self.active = False
 
     def get_recommendations(self) -> Tuple[Recommendation]:
         response = self._http.make_request(method='GET', route='/recs/core').json()

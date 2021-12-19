@@ -21,9 +21,9 @@ class Message(Entity):
         super().__init__(message, http)
         self.match_id: str = message['match_id']
         if type(message['sent_date']) is str:
-            self.sent_date: datetime = datetime.fromtimestamp(message['timestamp'] / 1000)
+            self.sent_date: str = message['sent_date']
         else:
-            self.sent_date: datetime = datetime.fromtimestamp(message['sent_date'] / 1000)
+            self.sent_date: str = message['timestamp']
         self.content: str = message['message']
         # TODO add objects instead of ids
         self.author_id: str = message['from']

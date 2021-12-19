@@ -75,14 +75,16 @@ class Match(Entity):
                 self.last_seen_message_id: str = match['seen']['last_seen_message_id']
 
     def send_message(self, message: Union[str, Message]) -> Message:
-        if message is str:
+        if type(message) is str:
             content = message
         else:
             content = message.content
         response = self.http.make_request(method='POST',
                                           route=f'/user/matches/{self.id}',
                                           body={'message': content}).json()
-        return Message(response, self.http)
+        message = Message(response, self.http)
+        self.message_history.add_message(message)
+        return message
 
     def delete_match(self):
         self.http.make_request(method='DELETE', route=f'match/{self.id}')
@@ -171,3 +173,11 @@ class MessageHistory:
         :return: the size of the cache
         """
         return len(self._messages)
+
+    def add_message(self, message: Message):
+        """
+        Appends a message to the cache.
+
+        :param message: the message to append
+        """
+        self._messages.append(message)

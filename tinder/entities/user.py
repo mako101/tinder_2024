@@ -32,7 +32,8 @@ class Descriptor:
         self.prompt: str = descriptor['prompt']
         self.icon_url: str = descriptor['icon_url']
         self.icon_urls: Tuple[SizedImage] = tuple(SizedImage(i) for i in descriptor['icon_urls'])
-        self.selection: ChoiceSelection = ChoiceSelection(descriptor['choice_selection'])
+        if 'choice_selection' in descriptor:
+            self.selection: ChoiceSelection = ChoiceSelection(descriptor['choice_selection'])
 
 
 class Gender(Enum):
@@ -220,7 +221,7 @@ class SelfUser(GenericUser):
 
     def update_school(self, school: str):
         body = {'schools': []}
-        if school is not '':
+        if school != '':
             body['schools'] = {
                 'displayed': True,
                 'name': school
