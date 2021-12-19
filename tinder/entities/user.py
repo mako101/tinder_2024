@@ -271,7 +271,7 @@ class SelfUser(GenericUser):
             "jobs": [
                 {
                     "company": {"displayed": True, "name": ""},
-                    "title": {"displayed": True, "name": ""}
+                    "title": {"displayed": True, "name": ""},
                 },
             ]
         }
