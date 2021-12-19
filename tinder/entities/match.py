@@ -77,6 +77,12 @@ class Match(Entity):
                 self.last_seen_message_id: str = match['seen']['last_seen_message_id']
 
     def send_message(self, message: Union[str, Message]) -> Message:
+        """
+        Sends a message to the match.
+
+        :param message: the message to send
+        :return: the sent message
+        """
         if type(message) is str:
             content = message
         else:
@@ -89,6 +95,10 @@ class Match(Entity):
         return message
 
     def delete_match(self):
+        """
+        Deletes the match.
+        <b>WARNING: This cannot be undone<b>
+        """
         self.http.make_request(method='DELETE', route=f'match/{self.id}')
         self._client.invalidate_match(self)
 

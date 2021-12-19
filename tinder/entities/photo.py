@@ -5,6 +5,9 @@ from tinder.http import Http
 
 
 class FacialScope:
+    """
+    Facial Scope contains coordinates to locate faces inside a photo.
+    """
     __slots__ = ['width_pct', 'x_offset_pct', 'height_pct', 'y_offset_pct']
 
     def __init__(self, scope: dict):
@@ -15,6 +18,9 @@ class FacialScope:
 
 
 class Face:
+    """
+    A face inside a photo.
+    """
     __slots__ = ['algo', 'bounding_box_percentage']
 
     def __init__(self, face: dict):
@@ -23,6 +29,9 @@ class Face:
 
 
 class CropInfo:
+    """
+    Photo processing metadata.
+    """
     __slots__ = ['processed_by_bullseye', 'user_customized', 'user', 'algo', 'faces']
 
     def __init__(self, crop_info: dict):
@@ -45,6 +54,9 @@ class CropInfo:
 
 
 class SizedImage:
+    """
+    An image with a fixed size. Used in various places inside the API.
+    """
     __slots__ = ['height', 'width', 'url', 'quality']
 
     def __init__(self, sized_image: dict):
@@ -61,6 +73,9 @@ class SizedImage:
 
 
 class Hash:
+    """
+    A photo hash.
+    """
     __slots__ = ['version', 'value']
 
     def __init__(self, hash_algo: dict):
@@ -69,6 +84,9 @@ class Hash:
 
 
 class GenericPhoto(Entity):
+    """
+    ABC for photos.
+    """
     __slots__ = \
         ['crop_info',
          'url',
@@ -100,6 +118,9 @@ class GenericPhoto(Entity):
 
 
 class ProfilePhoto(GenericPhoto):
+    """
+    Photos inside a profile object.
+    """
     __slots__ = [
         'assets',
         'created_at',
@@ -115,7 +136,6 @@ class ProfilePhoto(GenericPhoto):
 
     def __init__(self, photo: dict, http: Http):
         super().__init__(photo, http)
-        # TODO wrap assets object
         self.assets: Tuple[SizedImage] = tuple(SizedImage(i) for i in photo['assets'])
         self.created_at: str = photo['created_at']
         self.updated_at: str = photo['updated_at']
@@ -129,6 +149,9 @@ class ProfilePhoto(GenericPhoto):
 
 
 class MatchPhoto(GenericPhoto):
+    """
+    Photos inside a matched user object.
+    """
     __slots__ = ['assets', 'webp_qf', 'rank', 'score', 'win_count']
 
     def __init__(self, photo: dict, http: Http):

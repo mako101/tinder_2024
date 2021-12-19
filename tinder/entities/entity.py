@@ -2,6 +2,9 @@ from tinder.http import Http
 
 
 class Entity:
+    """
+    ABC for all Tinder entities.
+    """
     __slots__ = ['http', 'id']
 
     def __init__(self, entity: dict, http: Http):

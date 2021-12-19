@@ -6,6 +6,9 @@ from tinder.http import Http
 
 
 class Message(Entity):
+    """
+    Represents a message inside a match.
+    """
     __slots__ = [
         'match_id',
         'sent_date',
@@ -46,6 +49,9 @@ class Message(Entity):
 
 
 class AttachmentType(Enum):
+    """
+    The type of message attachment.
+    """
     GIF = 'gif'
     CONTACT_CARD = 'contact_card'
     SONG = 'song'
@@ -54,6 +60,9 @@ class AttachmentType(Enum):
 
 
 class Attachment:
+    """
+    ABC for attachments.
+    """
     __slots__ = ['type']
 
     def __init__(self, attachment_type: AttachmentType):
@@ -61,6 +70,9 @@ class Attachment:
 
 
 class GIFAttachment(Attachment):
+    """
+    A GIF attachment containing an url.
+    """
     __slots__ = ['url']
 
     def __init__(self, message: dict):
@@ -69,6 +81,9 @@ class GIFAttachment(Attachment):
 
 
 class ContactCardAttachment(Attachment):
+    """
+    A contact card attachment containing contact information.
+    """
     __slots__ = ['contact_id', 'contact_type', 'url']
 
     def __init__(self, message: dict):
@@ -80,6 +95,9 @@ class ContactCardAttachment(Attachment):
 
 
 class SongAttachment(Attachment):
+    """
+    A song attachment containing spotify song information.
+    """
     __slots__ = ['song']
 
     def __init__(self, message: dict):
@@ -88,6 +106,9 @@ class SongAttachment(Attachment):
 
 
 class StickerAttachment(Attachment):
+    """
+    Subtype of gif attachment.
+    """
     __slots__ = ['url']
 
     def __init__(self, message: dict):

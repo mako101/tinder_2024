@@ -4,6 +4,9 @@ from tinder.entities.photo import SizedImage
 
 
 class InstagramInfo:
+    """
+    Class containing Instagram photos if the Tinder profile is connected with Instagram.
+    """
     __slots__ = ['last_fetch_time', 'completed_initial_fetch', 'media_count', 'photos']
 
     def __init__(self, instagram: dict):
@@ -14,6 +17,9 @@ class InstagramInfo:
 
 
 class InstagramPhoto:
+    """
+    A photo from Instagram, used inside InstagramInfo.
+    """
     __slots__ = ['image', 'thumbnail', 'ts']
 
     def __init__(self, photo: dict):
@@ -23,6 +29,9 @@ class InstagramPhoto:
         
 
 class FacebookInfo:
+    """
+    Information about the same Facebook interests.
+    """
     __slots__ = [
         'common_connections',
         'connection_count',
@@ -51,6 +60,9 @@ class FacebookInfo:
 
 
 class SpotifyEntity:
+    """
+    Generic Spotify entity.
+    """
     __slots__ = ['id', 'name']
 
     def __init__(self, entity: dict):
@@ -62,6 +74,9 @@ class SpotifyEntity:
 
 
 class SpotifyAlbum(SpotifyEntity):
+    """
+    An album on Spotify.
+    """
     __slots__ = ['images']
 
     def __init__(self, album: dict):
@@ -70,6 +85,9 @@ class SpotifyAlbum(SpotifyEntity):
 
 
 class GenericSpotifyTrack(SpotifyEntity):
+    """
+    ABC for Spotify tracks.
+    """
     __slots__ = ['album', 'artists']
 
     def __init__(self, track: dict):
@@ -79,6 +97,9 @@ class GenericSpotifyTrack(SpotifyEntity):
 
 
 class SpotifyTrack(GenericSpotifyTrack):
+    """
+    A Spotify track used inside favourite track.
+    """
     __slots__ = ['url', 'uri']
 
     def __init__(self, track: dict):
@@ -88,6 +109,9 @@ class SpotifyTrack(GenericSpotifyTrack):
 
 
 class SpotifySongAttachment(GenericSpotifyTrack):
+    """
+    A song attached to a message.
+    """
     __slots__ = ['url']
 
     def __init__(self, track: dict):
@@ -96,6 +120,9 @@ class SpotifySongAttachment(GenericSpotifyTrack):
 
 
 class SpotifyTopArtist(SpotifyEntity):
+    """
+    A Spotify artist used inside Spotify top artists.
+    """
 
     def __init__(self, artist: dict):
         super().__init__(artist)

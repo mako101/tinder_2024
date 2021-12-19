@@ -9,6 +9,9 @@ from tinder.http import Http
 
 
 class Badge:
+    """
+    Profile badges.
+    """
     __slots__ = ['badge_type']
 
     def __init__(self, badge: dict):
@@ -16,6 +19,9 @@ class Badge:
 
 
 class ChoiceSelection:
+    """
+    Choice selection inside descriptors.
+    """
     __slots__ = ['id', 'name']
 
     def __init__(self, choice_selection: dict):
@@ -24,6 +30,9 @@ class ChoiceSelection:
 
 
 class Descriptor:
+    """
+    Profile descriptors such as hobbies, etc.
+    """
     __slots__ = ['id', 'name', 'prompt', 'icon_url', 'icon_urls', 'selection']
 
     def __init__(self, descriptor: dict):
@@ -37,12 +46,18 @@ class Descriptor:
 
 
 class Gender(Enum):
+    """
+    Gender of a profile.
+    """
     HIDDEN = -1
     MALE = 0
     FEMALE = 1
 
 
 class Interest:
+    """
+    Profile interests, such as reading, road trips, etc.
+    """
     __slots__ = ['id', 'name']
 
     def __init__(self, interest: dict):
@@ -51,6 +66,9 @@ class Interest:
 
 
 class Job:
+    """
+    Job information containing the company and the title.
+    """
     __slots__ = ['company', 'title']
 
     def __init__(self, job: dict):
@@ -61,6 +79,9 @@ class Job:
 
 
 class Position:
+    """
+    Position information.
+    """
     __slots__ = ['at', 'latitude', 'longitude']
 
     def __init__(self, position: dict):
@@ -70,6 +91,9 @@ class Position:
 
 
 class PositionInfo:
+    """
+    Country information.
+    """
     __slots__ = ['country', 'cc', 'alpha3', 'timezone']
 
     def __init__(self, position_info):
@@ -80,6 +104,9 @@ class PositionInfo:
 
 
 class School:
+    """
+    School information.
+    """
     __slots__ = ['name', 'metadata_id']
 
     def __init__(self, school: dict):
@@ -89,6 +116,9 @@ class School:
 
 
 class Teaser:
+    """
+    Profile teasers.
+    """
     __slots__ = ['type', 'value']
 
     def __init__(self, teaser: dict):
@@ -97,6 +127,9 @@ class Teaser:
 
 
 class GenericUser(Entity):
+    """
+    ABC for users.
+    """
     __slots__ = ['bio', 'birth_date', 'name', 'gender', 'badges', 'photos']
 
     def __init__(self, user: dict, http: Http):
@@ -113,10 +146,21 @@ class GenericUser(Entity):
         self.photos: Tuple[GenericPhoto] = tuple(GenericPhoto(p, http) for p in user['photos'])
 
     def get_user_profile(self):
+        """
+        Gets the complete user object.
+
+        :return: the complete user object.
+        """
         response = self.http.make_request(method='GET', route=f'/user/{self.id}').json()
         return UserProfile(response['results'], self.http)
 
     def report(self, cause: str, text: str):
+        """
+        Reports a user.
+
+        :param cause: the report cause
+        :param text: the detailed report text
+        """
         self.http.make_request(method='POST', route=f'/report/{self.id}', body={
             'cause': cause,
             'text': text
@@ -127,6 +171,9 @@ class GenericUser(Entity):
 
 
 class SelfUser(GenericUser):
+    """
+    The self user aka. your own Tinder Profile.
+    """
     __slots__ = [
         'age_filter_min',
         'age_filter_max',
@@ -170,6 +217,11 @@ class SelfUser(GenericUser):
         self.can_create_squad: bool = user['can_create_squad']
 
     def update_interests(self, interests: Union[List[Interest], None]):
+        """
+        Update the profile interests. Pass <em>None<em> to delete the interests.
+
+        :param interests: the interests to update.
+        """
         if interests is None:
             self.http.make_request(method='DELETE', route='/v2/profile/userinterests')
             return
@@ -193,9 +245,19 @@ class SelfUser(GenericUser):
         self.http.make_request(method='POST', route='/v2/profile', body=body)
 
     def update_descriptors(self, descriptors: dict):
+        """
+        Update the profile descriptors.
+
+        :param descriptors: the interests to update.
+        """
         self.http.make_request(method='POST', route='/v2/profile', body=descriptors)
 
     def update_job(self, job: Union[Job, None]):
+        """
+        Update the profile job. Pass <em>None<em> to delete the job.
+
+        :param job: the new job
+        """
         body = {
             'jobs': [
                 {
@@ -219,11 +281,21 @@ class SelfUser(GenericUser):
         self.job = job
 
     def update_bio(self, bio: str):
+        """
+        Update the profile bio.
+
+        :param bio: the new bio
+        """
         self.http.make_request(method='POST', route='/v2/profile', body={'user': {'bio': bio}})
 
         self.bio = bio
 
     def update_school(self, school: str):
+        """
+        Update the school information. Pass an empty String to remove the school.
+
+        :param school: the new school
+        """
         body = {'schools': []}
         if school != '':
             body['schools'] = {
@@ -236,12 +308,24 @@ class SelfUser(GenericUser):
         self.school = school
 
     def update_city(self, city: Union[dict, None]):
+        """
+        Update the city. Pass <em>None<em> to delete the city.
+
+        :param city: the new city
+        """
         if city is None:
             self.http.make_request(method='DELETE', route='/v2/profile/city')
         else:
             self.http.make_request(method='POST', route='/v2/profile/city', body=city)
 
     def update_gender(self, gender: Gender, show_gender: bool):
+        """
+        Update the profile gender.
+
+        :param gender: the new gender
+        :param show_gender: true to show the gender on the profile
+        :return:
+        """
         self.http.make_request(method='POST', route='/v2/profile', body={
             'user': {
                 'show_gender_on_profile': show_gender,
@@ -268,6 +352,9 @@ class SelfUser(GenericUser):
 
 
 class MatchedUser(GenericUser):
+    """
+    A user you have a match with.
+    """
     __slots__ = [
         'birth_date_info',
         'last_online',
@@ -294,6 +381,9 @@ class MatchedUser(GenericUser):
 
 
 class SwipeableUser(GenericUser):
+    """
+    ABC for users you can swipe on.
+    """
     __slots__ = [
         'job',
         'school',
@@ -335,9 +425,11 @@ class SwipeableUser(GenericUser):
         if 'spotify_theme_track' in user:
             self.theme_track: SpotifyTrack = SpotifyTrack(user['spotify_theme_track'])
 
+    @property
     def distance_mi(self) -> int:
         return self._distance
 
+    @property
     def distance_km(self) -> float:
         return self._distance * 1.609344
 
@@ -352,6 +444,9 @@ class SwipeableUser(GenericUser):
 
 
 class LikedUser(SwipeableUser):
+    """
+    A user the self user liked.
+    """
     __slots__ = ['content_hash', 'has_been_superliked', 'expire_time']
 
     def __init__(self, user: dict, http: Http):
@@ -362,6 +457,9 @@ class LikedUser(SwipeableUser):
 
 
 class UserProfile(SwipeableUser):
+    """
+    A complete user profile.
+    """
     __slots__ = [
         'sexual_orientations',
         'last_online',
@@ -392,6 +490,9 @@ class UserProfile(SwipeableUser):
 
 
 class Recommendation(SwipeableUser):
+    """
+    A user that is recommended and can be swiped on.
+    """
     __slots__ = ['group_matched', 'content_hash']
 
     def __init__(self, user: dict, http: Http):
@@ -401,6 +502,9 @@ class Recommendation(SwipeableUser):
 
 
 class LikePreview(Entity):
+    """
+    A user that liked the self user.
+    """
     __slots__ = ['photos', 'recently_active']
 
     def __init__(self, user: dict, http: Http):
