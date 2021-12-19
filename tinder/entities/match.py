@@ -112,8 +112,9 @@ class MessageHistory:
         self.http: Http = http
         self._match_id = match_id
 
-        route = f'/v2/matches/{match_id}/messages?count=60'
-        data = http.make_request(method='GET', route=route).json()['data']
+    def _fetch_initial_messages(self):
+        route = f'/v2/matches/{self._match_id}/messages?count=60'
+        data = self.http.make_request(method='GET', route=route).json()['data']
         if 'next_page_token' in data:
             self._page_token = data['next_page_token']
         else:
@@ -142,14 +143,17 @@ class MessageHistory:
 
         :return: all messages inside the cache
         """
+        self._fetch_initial_messages()
         return tuple(self._messages)
 
-    def load_all_messages(self, ) -> Tuple[Message]:
+    def load_all_messages(self) -> Tuple[Message]:
         """
         Requests all messages from the Tinder API.
 
         :return: all messages of a match
         """
+        self._fetch_initial_messages()
+
         if self._page_token is None:
             return tuple(self._messages)
 
