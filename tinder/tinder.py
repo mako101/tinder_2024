@@ -1,6 +1,8 @@
 import logging
+from datetime import datetime
 from typing import Tuple, List
 
+from tinder.entities.update import Update
 from tinder.entities.match import Match
 from tinder.exceptions import Unauthorized, LoginException
 from tinder.http import Http
@@ -24,8 +26,20 @@ class TinderClient:
             raise LoginException()
         self.active = True
 
-    def shutdown(self):
-        self.active = False
+    def invalidate_match(self, match: Match):
+        self._matches.pop(match.id)
+
+    def invalidate_self_user(self):
+        self._self_user = None
+
+    def get_updates(self, last_activity_date: str = '') -> Update:
+        if last_activity_date is '':
+            last_activity_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.00Z')
+        response = self._http.make_request(method='POST', route='/updates', body={
+            'nudge': True,
+            'last_activity_date': f'{last_activity_date}'
+        }).json()
+        return Update(response)
 
     def get_recommendations(self) -> Tuple[Recommendation]:
         response = self._http.make_request(method='GET', route='/recs/core').json()
@@ -42,7 +56,7 @@ class TinderClient:
             route = f'{route}&page_token={page_token}'
 
         data = self._http.make_request(method='GET', route=route).json()['data']
-        matches: List[Match] = list(Match(m, self._http) for m in data['matches'])
+        matches: List[Match] = list(Match(m, self._http, self) for m in data['matches'])
         if 'next_page_token' in data:
             matches.extend(self.load_all_matches(data['next_page_token']))
 
@@ -56,7 +70,7 @@ class TinderClient:
             return self._matches[match_id]
         else:
             response = self._http.make_request(method='GET', route=f'/v2/matches/{match_id}').json()
-            match = Match(response['data'], self._http)
+            match = Match(response['data'], self._http, self)
             self._matches[match.id] = match
             return match
 
