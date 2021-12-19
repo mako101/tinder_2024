@@ -11,9 +11,8 @@ from tinder.exceptions import Unauthorized, Forbidden, NotFound, RequestFailed
 class Http:
     _base_url = "https://api.gotinder.com"
     _headers = {
-        "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, "
-                      "like Gecko) "
-                      "Chrome/85.0.4183.102 Safari/537.36",
+        "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36",
         "Content-Type": "application/json",
         "X-Auth-Token": "",
     }
@@ -90,8 +89,10 @@ class Http:
                 )
                 self.make_request(route=route, method=method, body=body)
             else:
-                self._logger.error(f"Something went wrong. Status Code {status}. "
-                                   f"Exceeded max retries.")
+                self._logger.error(
+                    f"Something went wrong. Status Code {status}. "
+                    f"Exceeded max retries."
+                )
                 raise RequestFailed(response)
 
         self._request_count = 0

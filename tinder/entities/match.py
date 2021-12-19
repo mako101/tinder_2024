@@ -68,9 +68,9 @@ class Match(Entity):
             # if is_opener is true the self user liked first. Thus, the other user "closed" aka
             # completed the match. If is_opener is false the other use was the match "opener"
             if self.is_opener:
-                self.liked_content: MatchPhoto = (liked_content["by_closer"]["photo"])
+                self.liked_content: MatchPhoto = liked_content["by_closer"]["photo"]
             else:
-                self.liked_content: MatchPhoto = (liked_content["by_opener"]["photo"])
+                self.liked_content: MatchPhoto = liked_content["by_opener"]["photo"]
         self.seen: bool = False
         self.last_seen_message_id: str = ""
         if "seen" in match:
@@ -90,9 +90,10 @@ class Match(Entity):
             content = message
         else:
             content = message.content
-        response = self.http.make_request(method="POST",
-                                          route=f"/user/matches/{self.id}",
-                                          body={"message": content}).json()
+        response = self.http.make_request(
+            method="POST", route=f"/user/matches/{self.id}", body={
+                "message": content}
+        ).json()
         message = Message(response, self.http)
         self.message_history.add_message(message)
         return message
@@ -146,8 +147,11 @@ class MessageHistory:
 
         filtered: list = list(filter(lambda message: message.id == message_id, self._messages))
         if len(filtered) == 0:
-            return Message(self.http.make_request(method="GET",
-                                                  route=f"/message/{message_id}").json(), self.http)
+
+            return Message(
+                self.http.make_request(method="GET", route=f"/message/{message_id}").json(),
+                self.http,
+            )
         else:
             return filtered[0]
 

@@ -12,6 +12,7 @@ class Badge:
     """
     Profile badges.
     """
+
     __slots__ = ["badge_type"]
 
     def __init__(self, badge: dict):
@@ -22,6 +23,7 @@ class ChoiceSelection:
     """
     Choice selection inside descriptors.
     """
+
     __slots__ = ["id", "name"]
 
     def __init__(self, choice_selection: dict):
@@ -33,6 +35,7 @@ class Descriptor:
     """
     Profile descriptors such as hobbies, etc.
     """
+
     __slots__ = ["id", "name", "prompt", "icon_url", "icon_urls", "selection"]
 
     def __init__(self, descriptor: dict):
@@ -49,6 +52,7 @@ class Gender(Enum):
     """
     Gender of a profile.
     """
+
     HIDDEN = -1
     MALE = 0
     FEMALE = 1
@@ -58,6 +62,7 @@ class Interest:
     """
     Profile interests, such as reading, road trips, etc.
     """
+
     __slots__ = ["id", "name"]
 
     def __init__(self, interest: dict):
@@ -69,6 +74,7 @@ class Job:
     """
     Job information containing the company and the title.
     """
+
     __slots__ = ["company", "title"]
 
     def __init__(self, job: dict):
@@ -82,6 +88,7 @@ class Position:
     """
     Position information.
     """
+
     __slots__ = ["at", "latitude", "longitude"]
 
     def __init__(self, position: dict):
@@ -94,6 +101,7 @@ class PositionInfo:
     """
     Country information.
     """
+
     __slots__ = ["country", "cc", "alpha3", "timezone"]
 
     def __init__(self, position_info):
@@ -107,6 +115,7 @@ class School:
     """
     School information.
     """
+
     __slots__ = ["name", "metadata_id"]
 
     def __init__(self, school: dict):
@@ -119,6 +128,7 @@ class Teaser:
     """
     Profile teasers.
     """
+
     __slots__ = ["type", "value"]
 
     def __init__(self, teaser: dict):
@@ -164,10 +174,9 @@ class GenericUser(Entity):
         :param text: the detailed report text
         """
 
-        self.http.make_request(method="POST", route=f"/report/{self.id}", body={
-            "cause": cause,
-            "text": text
-        })
+        self.http.make_request(
+            method="POST", route=f"/report/{self.id}", body={"cause": cause, "text": text}
+        )
 
     def __str__(self):
         return f"GenericUser({self.id}:{self.name})"
@@ -234,13 +243,7 @@ class SelfUser(GenericUser):
         if len(interests) > 5:
             raise ValueError("You cannot select more than 5 interests!")
 
-        body = {
-            "user": {
-                "user_interests": {
-                    "selected_interests": []
-                }
-            }
-        }
+        body = {"user": {"user_interests": {"selected_interests": []}}}
         for interest in interests:
             body["user"]["user_interests"]["selected_interests"].append({
                 "id": interest.id,
@@ -269,14 +272,12 @@ class SelfUser(GenericUser):
             "jobs": [
                 {
                     "company": {
-                        "displayed": True,
-                        "name": ""
+                        "displayed": True, "name": ""
                     },
                     "title": {
                         "displayed": True,
                         "name": ""
-                    }
-                }
+                    }}
             ]
         }
         if job is not None:
@@ -307,10 +308,7 @@ class SelfUser(GenericUser):
 
         body = {"schools": []}
         if school != "":
-            body["schools"] = {
-                "displayed": True,
-                "name": school
-            }
+            body["schools"] = {"displayed": True, "name": school}
 
         self.http.make_request(method="POST", route="/v2/profile/school", body=body)
 
@@ -337,12 +335,10 @@ class SelfUser(GenericUser):
         :return:
         """
 
-        self.http.make_request(method="POST", route="/v2/profile", body={
-            "user": {
-                "show_gender_on_profile": show_gender,
-                "gender": gender
-            }
-        })
+        self.http.make_request(
+            method="POST", route="/v2/profile", body={
+                "user": {"show_gender_on_profile": show_gender, "gender": gender}}
+        )
 
         self.gender = gender
 
@@ -425,17 +421,20 @@ class SwipeableUser(GenericUser):
         self.teasers: Tuple[Teaser] = tuple(Teaser(t) for t in user["teasers"])
         self.facebook: FacebookInfo = FacebookInfo(user)
         if "user_interests" in user:
-            self.interests: Tuple[Interest] = \
-                tuple(Interest(i) for i in user["user_interests"]["selected_interests"])
+            self.interests: Tuple[Interest] = tuple(
+                Interest(i) for i in user["user_interests"]["selected_interests"]
+            )
         if "selected_descriptors" in user:
-            self.descriptors: Tuple[Descriptor] = \
-                tuple(Descriptor(d) for d in user["selected_descriptors"])
+            self.descriptors: Tuple[Descriptor] = tuple(
+                Descriptor(d) for d in user["selected_descriptors"]
+            )
         self.show_gender_on_profile: bool = True
         if "show_gender_on_profile" in user:
             self.show_gender_on_profile: bool = user["show_gender_on_profile"]
         if "spotify_top_artists" in user:
-            self.top_artists: Tuple[SpotifyTopArtist] = \
-                tuple(SpotifyTopArtist(a) for a in user["spotify_top_artists"])
+            self.top_artists: Tuple[SpotifyTopArtist] = tuple(
+                SpotifyTopArtist(a) for a in user["spotify_top_artists"]
+            )
         if "spotify_theme_track" in user:
             self.theme_track: SpotifyTrack = SpotifyTrack(user["spotify_theme_track"])
 
@@ -489,8 +488,9 @@ class UserProfile(SwipeableUser):
     def __init__(self, user: dict, http: Http):
         super().__init__(user, http)
         if "sexual_orientations" in user:
-            self.sexual_orientations: Tuple[str] = \
-                tuple(str(s["name"]) for s in user["sexual_orientations"])
+            self.sexual_orientations: Tuple[str] = tuple(
+                str(s["name"]) for s in user["sexual_orientations"]
+            )
         self.last_online: str = user["ping_time"]
         self.birth_date_info: str = user["birth_date_info"]
         self.is_tinder_u: bool = user["is_tinder_u"]
