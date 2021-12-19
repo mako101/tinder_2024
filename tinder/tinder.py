@@ -22,6 +22,7 @@ class TinderClient:
         :param log_level: the log level, default INFO
         :param ratelimit: the ratelimit multiplicator, default 10
         """
+
         self._http = Http(auth_token, log_level, ratelimit)
         self._self_user = None
         self._matches: dict = {}
@@ -39,12 +40,14 @@ class TinderClient:
 
         :param match: the match to invalidate
         """
+
         self._matches.pop(match.id)
 
     def invalidate_self_user(self):
         """
         Invalidates the cached self user.
         """
+
         self._self_user = None
 
     def get_updates(self, last_activity_date: str = '') -> Update:
@@ -54,6 +57,7 @@ class TinderClient:
         :param last_activity_date:
         :return: updates from the Tinder API
         """
+
         if last_activity_date == '':
             last_activity_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.00Z')
         response = self._http.make_request(method='POST', route='/updates', body={
@@ -68,6 +72,7 @@ class TinderClient:
 
         :return: a tuple of recommended users
         """
+
         response = self._http.make_request(method='GET', route='/recs/core').json()
         return tuple(Recommendation(r, self._http) for r in response['results'])
 
@@ -77,6 +82,7 @@ class TinderClient:
 
         :return: a tuple of users that liked the self user
         """
+
         response = \
             self._http.make_request(method='GET', route='/v2/fast-match/teasers').json()
         return tuple(LikePreview(user['user'], self._http) for user in response['data']['results'])
@@ -87,6 +93,7 @@ class TinderClient:
 
         :return: a tuple of all matches
         """
+
         route = f'/v2/matches?count=60'
         if page_token:
             route = f'{route}&page_token={page_token}'
@@ -108,6 +115,7 @@ class TinderClient:
         :param match_id: the match id
         :return: a match by id
         """
+
         if match_id in self._matches:
             return self._matches[match_id]
         else:
@@ -123,6 +131,7 @@ class TinderClient:
         :param user_id: the user id
         :return: a user profile by id
         """
+
         response = self._http.make_request(method='GET', route=f'/user/{user_id}').json()
         return UserProfile(response['results'], self._http)
 
@@ -132,6 +141,7 @@ class TinderClient:
 
         :return: the self user
         """
+
         if self._self_user is None:
             response = self._http.make_request(method='GET', route='/profile').json()
             return SelfUser(response, self._http)
@@ -144,6 +154,7 @@ class TinderClient:
 
         :return: a tuple of all liked users
         """
+
         response = self._http.make_request(method='GET', route='/v2/my-likes').json()
         result = []
         for user in response['data']['results']:

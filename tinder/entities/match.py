@@ -13,27 +13,28 @@ class Match(Entity):
     """
     Represents a Tinder match.
     """
+
     __slots__ = [
-        '_client',
-        'closed',
-        'facebook',
-        'created_date',
-        'dead',
-        'last_activity_date',
-        'message_history',
-        'pending',
-        'is_super_like',
-        'is_boost_match',
-        'is_super_boost_match',
-        'is_experiences_match',
-        'is_fast_match',
-        'is_opener',
-        'following',
-        'following_moments',
-        'matched_user',
-        'liked_content',
-        'seen',
-        'last_seen_message_id'
+        "_client",
+        "closed",
+        "facebook",
+        "created_date",
+        "dead",
+        "last_activity_date",
+        "message_history",
+        "pending",
+        "is_super_like",
+        "is_boost_match",
+        "is_super_boost_match",
+        "is_experiences_match",
+        "is_fast_match",
+        "is_opener",
+        "following",
+        "following_moments",
+        "matched_user",
+        "liked_content",
+        "seen",
+        "last_seen_message_id"
     ]
 
     def __init__(self, match: dict, http: Http, client):
@@ -42,39 +43,40 @@ class Match(Entity):
 
         :param match: the dictionary to construct the match from
         """
+
         super().__init__(match, http)
         self._client = client
-        self.closed: bool = match['closed']
+        self.closed: bool = match["closed"]
         self.facebook: FacebookInfo = FacebookInfo(match)
-        self.created_date: str = match['created_date']
-        self.dead: bool = match['dead']
-        self.last_activity_date: str = match['last_activity_date']
+        self.created_date: str = match["created_date"]
+        self.dead: bool = match["dead"]
+        self.last_activity_date: str = match["last_activity_date"]
         self.message_history: MessageHistory = MessageHistory(http, self.id)
-        self.pending: bool = match['pending']
-        self.is_super_like: bool = match['is_super_like']
-        self.is_boost_match: bool = match['is_boost_match']
-        self.is_super_boost_match: bool = match['is_super_boost_match']
-        self.is_experiences_match: bool = match['is_experiences_match']
-        self.is_fast_match: bool = match['is_fast_match']
-        self.is_opener: bool = match['is_opener']
+        self.pending: bool = match["pending"]
+        self.is_super_like: bool = match["is_super_like"]
+        self.is_boost_match: bool = match["is_boost_match"]
+        self.is_super_boost_match: bool = match["is_super_boost_match"]
+        self.is_experiences_match: bool = match["is_experiences_match"]
+        self.is_fast_match: bool = match["is_fast_match"]
+        self.is_opener: bool = match["is_opener"]
         """`true` if the self user liked first"""
-        self.following: bool = match['following']
-        self.following_moments: bool = match['following_moments']
-        self.matched_user: MatchedUser = MatchedUser(match['person'], http)
-        if 'liked_content' in match:
-            liked_content = match['liked_content']
+        self.following: bool = match["following"]
+        self.following_moments: bool = match["following_moments"]
+        self.matched_user: MatchedUser = MatchedUser(match["person"], http)
+        if "liked_content" in match:
+            liked_content = match["liked_content"]
             # if is_opener is true the self user liked first. Thus, the other user "closed" aka
             # completed the match. If is_opener is false the other use was the match "opener"
             if self.is_opener:
-                self.liked_content: MatchPhoto = (liked_content['by_closer']['photo'])
+                self.liked_content: MatchPhoto = (liked_content["by_closer"]["photo"])
             else:
-                self.liked_content: MatchPhoto = (liked_content['by_opener']['photo'])
+                self.liked_content: MatchPhoto = (liked_content["by_opener"]["photo"])
         self.seen: bool = False
-        self.last_seen_message_id: str = ''
-        if 'seen' in match:
-            self.seen: bool = match['seen']['match_seen']
-            if 'last_seen_message_id' in match['seen']:
-                self.last_seen_message_id: str = match['seen']['last_seen_message_id']
+        self.last_seen_message_id: str = ""
+        if "seen" in match:
+            self.seen: bool = match["seen"]["match_seen"]
+            if "last_seen_message_id" in match["seen"]:
+                self.last_seen_message_id: str = match["seen"]["last_seen_message_id"]
 
     def send_message(self, message: Union[str, Message]) -> Message:
         """
@@ -83,13 +85,14 @@ class Match(Entity):
         :param message: the message to send
         :return: the sent message
         """
+
         if type(message) is str:
             content = message
         else:
             content = message.content
-        response = self.http.make_request(method='POST',
-                                          route=f'/user/matches/{self.id}',
-                                          body={'message': content}).json()
+        response = self.http.make_request(method="POST",
+                                          route=f"/user/matches/{self.id}",
+                                          body={"message": content}).json()
         message = Message(response, self.http)
         self.message_history.add_message(message)
         return message
@@ -99,11 +102,12 @@ class Match(Entity):
         Deletes the match.
         <b>WARNING: This cannot be undone<b>
         """
-        self.http.make_request(method='DELETE', route=f'match/{self.id}')
+
+        self.http.make_request(method="DELETE", route=f"match/{self.id}")
         self._client.invalidate_match(self)
 
     def __str__(self):
-        return f'Match({self.id}:{self.matched_user})'
+        return f"Match({self.id}:{self.matched_user})"
 
 
 class MessageHistory:
@@ -123,14 +127,14 @@ class MessageHistory:
         self._match_id = match_id
 
     def _fetch_initial_messages(self):
-        route = f'/v2/matches/{self._match_id}/messages?count=60'
-        data = self.http.make_request(method='GET', route=route).json()['data']
-        if 'next_page_token' in data:
-            self._page_token = data['next_page_token']
+        route = f"/v2/matches/{self._match_id}/messages?count=60"
+        data = self.http.make_request(method="GET", route=route).json()["data"]
+        if "next_page_token" in data:
+            self._page_token = data["next_page_token"]
         else:
             self._page_token = None
 
-        self._messages.extendleft(Message(m, self.http) for m in data['messages'])
+        self._messages.extendleft(Message(m, self.http) for m in data["messages"])
 
     def get_message_by_id(self, message_id: str) -> Message:
         """
@@ -142,8 +146,8 @@ class MessageHistory:
 
         filtered: list = list(filter(lambda message: message.id == message_id, self._messages))
         if len(filtered) == 0:
-            return Message(self.http.make_request(method='GET',
-                                                  route=f'/message/{message_id}').json(), self.http)
+            return Message(self.http.make_request(method="GET",
+                                                  route=f"/message/{message_id}").json(), self.http)
         else:
             return filtered[0]
 
@@ -153,6 +157,7 @@ class MessageHistory:
 
         :return: all messages inside the cache
         """
+
         self._fetch_initial_messages()
         return tuple(self._messages)
 
@@ -162,6 +167,7 @@ class MessageHistory:
 
         :return: all messages of a match
         """
+
         self._fetch_initial_messages()
 
         if self._page_token is None:
@@ -172,14 +178,14 @@ class MessageHistory:
         return tuple(self._messages)
 
     def _load_messages(self, page_token: str = None) -> Tuple[Message]:
-        route = f'/v2/matches/{self._match_id}/messages?count=60'
+        route = f"/v2/matches/{self._match_id}/messages?count=60"
         if page_token:
-            route = f'{route}&page_token={page_token}'
+            route = f"{route}&page_token={page_token}"
 
-        data = self.http.make_request(method='GET', route=route).json()['data']
-        messages: list = list(Message(m, self.http) for m in data['messages'])
-        if 'next_page_token' in data:
-            messages.extend(self._load_messages(data['next_page_token']))
+        data = self.http.make_request(method="GET", route=route).json()["data"]
+        messages: list = list(Message(m, self.http) for m in data["messages"])
+        if "next_page_token" in data:
+            messages.extend(self._load_messages(data["next_page_token"]))
 
         return tuple(messages)
 
@@ -189,6 +195,7 @@ class MessageHistory:
 
         :return: the size of the cache
         """
+
         return len(self._messages)
 
     def add_message(self, message: Message):
@@ -197,4 +204,5 @@ class MessageHistory:
 
         :param message: the message to append
         """
+
         self._messages.append(message)
