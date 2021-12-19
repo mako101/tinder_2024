@@ -19,11 +19,14 @@ class Http:
     }
     _reattempt_count = {}
     _request_count = 0
+    _logger = logging.getLogger('tinder-py')
 
-    def __init__(self, token: str, max_reattempts: int = 3, timeout_factor: int = 10):
+    def __init__(self, token: str, log_level: int, timeout_factor: int = 10):
         self._headers['X-Auth-Token'] = token
-        self._max_reattempts = max_reattempts
+        self._max_reattempts = 3
         self._timeout = timeout_factor
+        logging.basicConfig(level=log_level)
+        logging.getLogger('urllib3').setLevel(logging.WARNING)
 
     def make_request(self, **kwargs) -> requests.Response:
         route = kwargs.get('route')
@@ -34,13 +37,13 @@ class Http:
 
         if self._request_count > 2:
             timeout = floor(self._timeout * random())
-            logging.debug(f'Too many requests. Waiting for {timeout} secs')
+            self._logger.debug(f'Too many requests. Waiting for {timeout} secs')
             time.sleep(timeout)
             self._request_count = 0
-            logging.debug('Continuing...')
+            self._logger.debug('Continuing...')
 
         url = self._base_url + route
-        logging.debug(f'Sending {method} request to {url}')
+        self._logger.debug(f'Sending {method} request to {url}')
         if method == 'GET':
             response = requests.get(url, headers=self._headers)
         elif method == 'POST':
@@ -52,7 +55,7 @@ class Http:
         else:
             raise ValueError('Invalid request method!')
         status = response.status_code
-        logging.debug(f'Got response: {status}')
+        self._logger.debug(f'Got response: {status}')
 
         if 200 <= status < 300:
             return response
@@ -66,9 +69,9 @@ class Http:
                 raise NotFound(response)
             elif status == 429:
                 timeout = floor(self._timeout * random())
-                logging.debug(f'Too many requests. Waiting for {timeout} secs')
+                self._logger.debug(f'Too many requests. Waiting for {timeout} secs')
                 time.sleep(timeout)
-                logging.debug('Reattempting...')
+                self._logger.debug('Reattempting...')
                 self.make_request(route=route, method=method, body=body)
             else:
                 raise RequestFailed(response)
@@ -80,14 +83,15 @@ class Http:
                 self._reattempt_count[url.__hash__()] = 1
 
             if self._reattempt_count[url.__hash__()] < self._max_reattempts:
-                logging.warning(
+                self._logger.warning(
                     f'Something went wrong. Status Code {status}. '
                     f'Reattempting Request '
                     f'{self._reattempt_count[url.__hash__()]}...'
                 )
                 self.make_request(route=route, method=method, body=body)
             else:
-                logging.error(f'Something went wrong. Status Code {status}. Exceeded max retries.')
+                self._logger.error(f'Something went wrong. Status Code {status}. '
+                                   f'Exceeded max retries.')
                 raise RequestFailed(response)
 
         self._request_count = 0

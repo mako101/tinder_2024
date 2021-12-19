@@ -7,7 +7,6 @@ from tinder.entities.photo import MatchPhoto
 from tinder.entities.socials import FacebookInfo
 from tinder.entities.user import MatchedUser
 from tinder.http import Http
-from tinder.tinder import TinderClient
 
 
 class Match(Entity):
@@ -37,14 +36,14 @@ class Match(Entity):
         'last_seen_message_id'
     ]
 
-    def __init__(self, match: dict, http: Http, client: TinderClient):
+    def __init__(self, match: dict, http: Http, client):
         """
         Creates a new match object
 
         :param match: the dictionary to construct the match from
         """
         super().__init__(match, http)
-        self._client: TinderClient = client
+        self._client = client
         self.closed: bool = match['closed']
         self.facebook: FacebookInfo = FacebookInfo(match)
         self.created_date: str = match['created_date']

@@ -12,12 +12,9 @@ from tinder.entities.user import UserProfile, LikePreview, Recommendation, SelfU
 class TinderClient:
 
     def __init__(self, auth_token: str, log_level: int = logging.INFO, ratelimit: int = 10):
-        self._http = Http(auth_token, timeout_factor=ratelimit)
+        self._http = Http(auth_token, log_level, ratelimit)
         self._self_user = None
         self._matches: dict = {}
-        logging.getLogger().name = 'tinder-py'
-        logging.getLogger().setLevel(log_level)
-        logging.getLogger('urllib3').setLevel(logging.WARNING)
         try:
             self._self_user = self.get_self_user()
         except Unauthorized:
@@ -33,7 +30,7 @@ class TinderClient:
         self._self_user = None
 
     def get_updates(self, last_activity_date: str = '') -> Update:
-        if last_activity_date is '':
+        if last_activity_date == '':
             last_activity_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.00Z')
         response = self._http.make_request(method='POST', route='/updates', body={
             'nudge': True,

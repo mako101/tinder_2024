@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import Enum
 
 from tinder.entities.entity import Entity
@@ -25,12 +24,12 @@ class Message(Entity):
         else:
             self.sent_date: str = message['timestamp']
         self.content: str = message['message']
-        # TODO add objects instead of ids
         self.author_id: str = message['from']
         self.recipient_id: str = message['to']
         self.attachment_type: AttachmentType = AttachmentType.NONE
 
         if 'type' in message:
+            print(message['type'])
             self.attachment_type = AttachmentType(message['type'])
 
         if self.attachment_type == AttachmentType.GIF:
@@ -47,8 +46,8 @@ class Message(Entity):
 
 
 class AttachmentType(Enum):
-    GIF = 'gif',
-    CONTACT_CARD = 'contact_card',
+    GIF = 'gif'
+    CONTACT_CARD = 'contact_card'
     SONG = 'song'
     STICKER = 'sticker'
     NONE = 'N/A'
