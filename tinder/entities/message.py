@@ -33,7 +33,6 @@ class Message(Entity):
         self.attachment_type: AttachmentType = AttachmentType.NONE
 
         if "type" in message:
-            print(message["type"])
             self.attachment_type = AttachmentType(message["type"])
 
         if self.attachment_type == AttachmentType.GIF:

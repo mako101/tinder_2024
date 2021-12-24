@@ -1,6 +1,7 @@
 [![Python Linting](https://github.com/rednit-team/tinder.py/actions/workflows/pylint.yml/badge.svg)](https://github.com/rednit-team/tinder.py/actions/workflows/pylint.yml)
 ![license-shield](https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg)
 [![Version](https://img.shields.io/badge/Download-1.0.0-green.svg)](https://github.com/rednit-team/tinder.py/releases/latest)
+![Compatibility](https://img.shields.io/pypi/pyversions/rednit.py)
 
 # Tinder.py
 
@@ -38,7 +39,10 @@ There, you'll find the X-Auth-Token header containing the auth token. Please not
 actions first (for example liking a user) before you see any requests.
 
 ### Download
-N/A
+
+```
+pip install rednit.py
+```
 
 ### Credits
 - [@fbessez](https://github.com/fbessez/Tinder) and 
