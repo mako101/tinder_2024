@@ -446,7 +446,7 @@ class SwipeableUser(GenericUser):
         self.http.make_request(method="GET", route=f"/like/{self.id}")
 
     def dislike(self):
-        self.http.make_request(method="GET", route=f"/dislike/{self.id}")
+        self.http.make_request(method="GET", route=f"/pass/{self.id}")
 
     def superlike(self):
         self.http.make_request(method="POST", route=f"/like/{self.id}/super")
@@ -510,8 +510,8 @@ class Recommendation(SwipeableUser):
 
     def __init__(self, user: dict, http: Http):
         super().__init__(user, http)
-        self.group_matched = user["group_matched"]
-        self.content_hash = user["content_hash"]
+        self.group_matched: bool = user["group_matched"]
+        self.content_hash: str = user["content_hash"]
 
 
 class LikePreview(Entity):
@@ -523,6 +523,7 @@ class LikePreview(Entity):
 
     def __init__(self, user: dict, http: Http):
         super().__init__(user, http)
+        self.photos: Tuple[GenericPhoto] = tuple(GenericPhoto(p, http) for p in user['photos'])
         self.recently_active: bool = False
         if "recently_active" in user:
             self.recently_active: bool = user["recently_active"]
