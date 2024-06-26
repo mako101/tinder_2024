@@ -14,7 +14,7 @@ class TinderClient:
     The client can send requests to the Tinder API.
     """
 
-    def __init__(self, auth_token: str, log_level: int = logging.INFO, ratelimit: int = 10):
+    def __init__(self, auth_token: str, log_level: int = logging.INFO, ratelimit: int = 10, load_self=False):
         """
         Constructs a new client.
 
@@ -26,13 +26,14 @@ class TinderClient:
         self._http = Http(auth_token, log_level, ratelimit)
         self._self_user = None
         self._matches: dict = {}
-        try:
-            self._self_user = self.get_self_user()
-        except Unauthorized:
-            pass
-        if self._self_user is None:
-            raise LoginException()
-        self.active = True
+        if load_self:
+            try:
+                self._self_user = self.get_self_user()
+            except Unauthorized:
+                pass
+            if self._self_user is None:
+                raise LoginException()
+            self.active = True
 
     def invalidate_match(self, match: Match):
         """

@@ -1,4 +1,5 @@
 from typing import Tuple
+from datetime import datetime
 
 from tinder.entities.entity import Entity
 from tinder.http import Http
@@ -101,6 +102,8 @@ class GenericPhoto(Entity):
         "file_name",
         "extension",
         "type",
+        'upload_date',
+        'score'
     ]
 
     def __init__(self, photo: dict, http: Http):
@@ -118,8 +121,13 @@ class GenericPhoto(Entity):
             self.processed_videos: Tuple[SizedImage] = tuple(
                 SizedImage(i) for i in photo["processedFiles"]
             )
-        self.file_name: str = photo["fileName"]
+        # self.file_name: str = photo["fileName"]
         self.extension: str = photo["extension"]
+        self.score: float = photo.get('score', 0)
+        try:
+            self.upload_date: datetime = datetime.fromisoformat(photo['assets'][0]['created_at'])
+        except:
+            self.upload_date = None
 
     def __str__(self):
         return f"Photo({self.id})"
@@ -148,7 +156,7 @@ class ProfilePhoto(GenericPhoto):
         self.assets: Tuple[SizedImage] = tuple(SizedImage(i) for i in photo["assets"])
         self.created_at: str = photo["created_at"]
         self.updated_at: str = photo["updated_at"]
-        self.fb_id: str = photo["fbId"]
+        # self.fb_id: str = photo["fbId"]
         self.webp_qf: int = photo["webp_qf"][0]
         self.rank: int = photo["rank"]
         self.score: float = photo["score"]

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Tuple, List, Union
 
@@ -141,7 +141,7 @@ class GenericUser(Entity):
     ABC for users.
     """
 
-    __slots__ = ["bio", "birth_date", "name", "gender", "badges", "photos"]
+    __slots__ = ["bio", "birth_date", "age", "name", "gender", "badges", "photos", 'best_photo']
 
     def __init__(self, user: dict, http: Http):
         super().__init__(user, http)
@@ -149,12 +149,14 @@ class GenericUser(Entity):
         if "bio" in user:
             self.bio: str = user["bio"]
         self.birth_date: str = user["birth_date"]
+        self.age = int((datetime.now(timezone.utc) - datetime.fromisoformat(self.birth_date)).days // 365.25)
         self.name: str = user["name"]
         self.gender: Gender = Gender(user["gender"])
         self.badges: Tuple[Badge] = tuple()
         if "badges" in user:
             self.badges: Tuple[Badge] = tuple(Badge(b) for b in user["badges"])
         self.photos: Tuple[GenericPhoto] = tuple(GenericPhoto(p, http) for p in user["photos"])
+        self.best_photo: GenericPhoto = max(self.photos, key=lambda photo: photo.score, default=None)
 
     def get_user_profile(self):
         """
